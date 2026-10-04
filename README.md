@@ -1,4 +1,4 @@
-# CN Project – Phase 1: Private Network Service Platform (Team 1)
+# CN Project – Phase 1: Private Network Service Platform 
 
 A client resolves `app.team1.test` through our own DNS server, connects over HTTPS to an nginx edge that terminates TLS, and nginx load-balances each request round-robin across two Python REST backends. Everything runs locally on three MacBooks on one Wi-Fi LAN; no cloud.
 
@@ -7,7 +7,7 @@ A client resolves `app.team1.test` through our own DNS server, connects over HTT
 | Name | Enrollment No. | Machine | Role |
 |---|---|---|---|
 | Sanath SURNAME | ENROLLMENT_NO | Mac 1 – 10.7.7.6 | Private DNS server (dnsmasq) + Backend B + test client |
-| Aryan SURNAME | ENROLLMENT_NO | Mac 2 – 10.7.17.6 | Edge: nginx reverse proxy, load balancer, TLS termination |
+| Aryan Bhargava | 2401010100 | Mac 2 – 10.7.17.6 | Edge: nginx reverse proxy, load balancer, TLS termination |
 | Krishna Pramod Dubale | ENROLLMENT_NO | Mac 3 – 10.7.9.214 | Backend A + test client + Wireshark |
 
 Infrastructure type: **Type 2 – 3 Macs with combined roles** (Mac 1 does DNS and Backend B).
