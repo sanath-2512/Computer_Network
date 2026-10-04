@@ -1,0 +1,66 @@
+CN PROJECT - PHASE 1 EVIDENCE (team1)
+Team: Sanath (Mac 1), Aryan (Mac 2), Krishna (Mac 3)
+
+=====================================================================
+MACHINES / IP TABLE (Task A)
+=====================================================================
+Mac    Person   Role                         IPv4        Mask (prefix)        Gateway    Interface  MAC in use          Ports
+Mac 1  Sanath   DNS (dnsmasq) + Backend B    10.7.7.6    255.255.224.0 (/19)  10.7.0.1   en0        ca:38:a4:4b:6e:54   53/UDP, 3002/TCP
+Mac 2  Aryan    Edge: nginx, LB, TLS         10.7.17.6   255.255.224.0 (/19)  10.7.0.1   en0        d6:69:00:de:9d:e6   80/TCP, 443/TCP
+Mac 3  Krishna  Backend A + client           10.7.9.214  255.255.224.0 (/19)  10.7.0.1   en0        a2:cf:b2:6c:ac:cd   3001/TCP
+Subnet: 10.7.0.0/19 (10.7.0.0 - 10.7.31.255). All three are on the same LAN.
+(macOS uses a private Wi-Fi MAC; the hardware MACs are 10:9f:41:c4:9d:1f, 10:9f:41:bb:9c:9c, 10:9f:41:bf:d0:70.)
+
+DNS records: app.team1.test -> 10.7.17.6, api.team1.test -> 10.7.17.6 (TTL 60)
+
+=====================================================================
+FILES
+=====================================================================
+File                                               PDF task   What it shows
+01-lan-sanath-network-info.jpg                     Task A     interface, IP, mask, gateway, MAC (Mac 1)
+01-lan-sanath-ping.jpg                             Task A     Mac 1 pings Mac 3 and Mac 2
+01-lan-aryan-network-info-and-ping.jpg             Task A     Mac 2 network info + pings Mac 1 and Mac 3
+01-lan-krishna-network-info-and-ping.jpg           Task A     Mac 3 network info + pings Mac 1 and Mac 2
+02-dns-aryan.jpg                                   Task B     Mac 2 uses DNS 10.7.7.6; app + api -> 10.7.17.6
+02-dns-krishna.jpg                                 Task B     Mac 3 uses DNS 10.7.7.6; app + api -> 10.7.17.6
+03-https-tls-certificate-verify-ok.jpg             Task D, E  HTTPS by name, TLS 1.3, "SSL certificate verify ok", HTTP/2, X-Backend
+04-certificate-and-nginx-check-aryan.jpg           Task E     cert issuer = our CA, SAN app/api.team1.test, nginx -t ok, listening on 443
+05-load-balancing-A-B.jpg                          Task D     10 requests alternate X-Backend A / B (round-robin)
+06-caching-200-then-304.jpg                        Task F     200 + Cache-Control max-age=60 + ETag, then 304 Not Modified
+07-all-checks-incl-http1-vs-http2.jpg              all        ping, DNS, TLS, load balancing, HTTP/1.1 vs HTTP/2, caching
+08-http-headers-tls12-request.jpg                  Task G     TLS 1.2 handshake steps + HTTP request (>) and response (<) headers
+09-wireshark-dns-query-response.jpg                Task G     DNS query 10.7.9.214:52428 -> 10.7.7.6:53 (UDP), answer 10.7.17.6
+10-wireshark-tcp-3way-handshake.jpg                Task G     SYN, SYN-ACK, ACK; port 62721 -> 443; Seq/Ack numbers
+11-wireshark-tls12-handshake.jpg                   Task G     Client Hello (SNI), Server Hello, Certificate, Key Exchange, Change Cipher Spec
+12-wireshark-certificate-app-team1-test.jpg        Task G     certificate SAN: app.team1.test, api.team1.test
+13-wireshark-encrypted-application-data.jpg        Task G     HTTP inside TLS = Encrypted Application Data
+14-wireshark-tls13-comparison-optional.jpg         Task G     TLS 1.3: certificate hidden (encrypted) - for comparison
+15-break1-one-backend-down.jpg                     6.3        Backend A stopped -> all requests served by B
+16-break2-both-backends-down-502.jpg               6.3        both stopped -> TLS ok, nginx returns 502 Bad Gateway
+17-break3-wrong-port.jpg                           6.3        port 4443 -> connection refused
+18-break4-wrong-dns-server.jpg                     6.3        DNS 8.8.8.8 -> NXDOMAIN, but ping 10.7.17.6 works
+19-break5a-dns-record-changed-sanath.jpg           6.3        record changed to wrong IP (10.7.9.214)
+19-break5b-wrong-ip-connection-fails-krishna.jpg   6.3        dig gives 10.7.9.214, connection fails
+19-break5c-dns-record-restored-sanath.jpg          6.3        record restored to 10.7.17.6
+19-break5d-dns-correct-again-krishna.jpg           6.3        dig gives 10.7.17.6 again
+failure-tests.txt                                  6.3        what we did / saw / why for all 5 breaks
+
+=====================================================================
+PORTS SEEN (Task G - port identification)
+=====================================================================
+DNS:    10.7.9.214:52428 (ephemeral) -> 10.7.7.6:53   UDP
+HTTPS:  10.7.9.214:62721 (ephemeral) -> 10.7.17.6:443 TCP  (TLS 1.3 connection)
+HTTPS:  10.7.9.214:62950 (ephemeral) -> 10.7.17.6:443 TCP  (TLS 1.2 connection)
+Edge -> backend: 10.7.17.6:56082 -> 10.7.9.214:3001 TCP, plain HTTP (TLS ends at nginx)
+
+=====================================================================
+CAPTURE FILE: phase1-flow.pcapng (open in Wireshark, type these filters)
+=====================================================================
+dns.qry.name == "app.team1.test"   frames 1686/1688: query 10.7.9.214:50136 -> 10.7.7.6:53, answer 10.7.17.6
+tcp.stream == 47                   frames 1691/1692 + ACK: SYN, SYN-ACK, ACK (port 62610 -> 443)
+                                   frame 1694: Client Hello (SNI app.team1.test), TLS 1.2
+                                   frame 1698: Server Hello, Certificate, Server Key Exchange, Server Hello Done
+                                   frame 1702: Client Key Exchange, Change Cipher Spec, Finished
+                                   then: Application Data (encrypted HTTP)
+http                               frames 1715/1726: nginx (10.7.17.6) -> Backend A (10.7.9.214:3001)
+                                   GET /api/status and 200 in plain text = TLS ends at nginx

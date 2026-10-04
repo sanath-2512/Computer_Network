@@ -1,0 +1,40 @@
+PHASE 1 FAILURE DEMONSTRATIONS (Section 6.3)
+
+1. ONE BACKEND STOPPED
+Did:  Stopped Backend A on Krishna's Mac (10.7.9.214:3001) with Ctrl+C.
+Saw:  All requests still returned 200, every one with X-Backend: B.
+Why:  nginx could not connect to A (connection refused), so it retried the
+      same request on B. max_fails=1 fail_timeout=10s marks A as down.
+Screenshot: 15-break1-one-backend-down.jpg
+
+2. BOTH BACKENDS STOPPED
+Did:  Stopped Backend A and Backend B.
+Saw:  DNS worked, TCP connected, TLS succeeded ("SSL certificate verify ok"),
+      then nginx returned 502 Bad Gateway.
+Why:  The edge (nginx on 10.7.17.6) is alive, but no backend answered.
+      502 shows the failure is behind the edge, not in DNS/TCP/TLS.
+Screenshot: 16-break2-both-backends-down-502.jpg
+
+3. WRONG DESTINATION PORT
+Did:  curl https://app.team1.test:4443/
+Saw:  "Failed to connect ... port 4443 ... Couldn't connect to server".
+Why:  The IP gets us to the right machine; the port selects the program.
+      Nothing listens on 4443, so the machine refuses the connection.
+Screenshot: 17-break3-wrong-port.jpg
+
+4. WRONG DNS SERVER ON CLIENT
+Did:  Set Krishna's DNS to 8.8.8.8 instead of Sanath's 10.7.7.6.
+Saw:  dig app.team1.test returned NXDOMAIN (SERVER 8.8.8.8),
+      but ping 10.7.17.6 still worked.
+Why:  Public DNS does not know our private .test name. The network (IP)
+      still works - DNS and IP connectivity are separate layers.
+Screenshot: 18-break4-wrong-dns-server.jpg
+
+5. DNS RECORD POINTS TO WRONG IP
+Did:  Sanath changed app.team1.test from 10.7.17.6 to 10.7.9.214 in dnsmasq.
+Saw:  dig returned 10.7.9.214 (wrong) and curl could not connect to port 443.
+Why:  DNS is only a directory: it returns whatever is written and never
+      checks if the server is right. Resolution worked, connection failed.
+Screenshots: 19-break5a ... 19-break5d (changed, failed, restored, correct again)
+
+All five were restored afterwards and the system worked normally again.
