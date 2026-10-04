@@ -6,7 +6,7 @@ A client resolves `app.team1.test` through our own DNS server, connects over HTT
 
 | Name | Enrollment No. | Machine | Role |
 |---|---|---|---|
-| Sanath SURNAME | ENROLLMENT_NO | Mac 1 – 10.7.7.6 | Private DNS server (dnsmasq) + Backend B + test client |
+| Sanath Waraikar | ENROLLMENT_NO | Mac 1 – 10.7.7.6 | Private DNS server (dnsmasq) + Backend B + test client |
 | Aryan Bhargava | 2401010100 | Mac 2 – 10.7.17.6 | Edge: nginx reverse proxy, load balancer, TLS termination |
 | Krishna Pramod Dubale | ENROLLMENT_NO | Mac 3 – 10.7.9.214 | Backend A + test client + Wireshark |
 
