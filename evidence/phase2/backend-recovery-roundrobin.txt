@@ -1,0 +1,18 @@
+HTTP/2 200 
+x-backend: B
+{"backend": "B", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3002, "time": "2026-11-22T19:38:23+00:00"}
+HTTP/2 200 
+x-backend: A
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:38:23+00:00"}
+HTTP/2 200 
+x-backend: B
+{"backend": "B", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3002, "time": "2026-11-22T19:38:23+00:00"}
+HTTP/2 200 
+x-backend: A
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:38:23+00:00"}
+HTTP/2 200 
+x-backend: B
+{"backend": "B", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3002, "time": "2026-11-22T19:38:23+00:00"}
+HTTP/2 200 
+x-backend: A
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:38:23+00:00"}

@@ -1,0 +1,15 @@
+HTTP/2 200 
+server: nginx/1.31.6
+date: Sun, 22 Nov 2026 19:29:19 GMT
+content-type: application/json
+content-length: 135
+x-backend: B
+cache-control: public, max-age=60
+etag: "22926ba9d1982e7c"
+
+{
+  "resource": "team-info",
+  "team": "team1",
+  "version": 1,
+  "note": "Cacheable for 60 seconds. Revalidate with If-None-Match."
+}

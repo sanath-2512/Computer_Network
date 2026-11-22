@@ -1,0 +1,59 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Host app.team1.test:443 was resolved.
+* IPv6: (none)
+* IPv4: 10.7.9.214
+*   Trying 10.7.9.214:443...
+* Connected to app.team1.test (10.7.9.214) port 443
+* ALPN: curl offers h2,http/1.1
+* (304) (OUT), TLS handshake, Client hello (1):
+} [319 bytes data]
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+  0     0    0     0    0     0      0      0 --:--:--  0:00:01 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:02 --:--:--     0  0     0    0     0    0     0      0      0 --:--:--  0:00:03 --:--:--     0* (304) (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* (304) (IN), TLS handshake, Unknown (8):
+{ [47 bytes data]
+* (304) (IN), TLS handshake, Certificate (11):
+{ [939 bytes data]
+* (304) (IN), TLS handshake, CERT verify (15):
+{ [264 bytes data]
+* (304) (IN), TLS handshake, Finished (20):
+{ [36 bytes data]
+* (304) (OUT), TLS handshake, Finished (20):
+} [36 bytes data]
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256 / [blank] / UNDEF
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=app.team1.test; O=CN Project team1
+*  start date: Nov 22 19:11:49 2026 GMT
+*  expire date: Nov 22 19:11:49 2027 GMT
+*  subjectAltName: host "app.team1.test" matched cert's "app.team1.test"
+*  issuer: CN=team1 Local Root CA; O=CN Project team1
+*  SSL certificate verify ok.
+* using HTTP/2
+  0     0    0     0    0     0      0      0 --:--:--  0:00:04 --:--:--     0* [HTTP/2] [1] OPENED stream for https://app.team1.test/api/status
+* [HTTP/2] [1] [:method: GET]
+* [HTTP/2] [1] [:scheme: https]
+* [HTTP/2] [1] [:authority: app.team1.test]
+* [HTTP/2] [1] [:path: /api/status]
+* [HTTP/2] [1] [user-agent: curl/8.7.1]
+* [HTTP/2] [1] [accept: */*]
+> GET /api/status HTTP/2
+> Host: app.team1.test
+> User-Agent: curl/8.7.1
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/2 200 
+< server: nginx/1.31.9
+< date: Sun, 22 Nov 2026 19:39:05 GMT
+< content-type: application/json
+< content-length: 123
+< x-backend: A
+< cache-control: no-store
+< 
+{ [123 bytes data]
+100   123  100   123    0     0     29      0  0:00:04  0:00:04 --:--:--    29
+* Connection #0 to host app.team1.test left intact
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:39:05+00:00"}

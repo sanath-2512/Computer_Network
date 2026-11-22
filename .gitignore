@@ -2,3 +2,8 @@
 *.srl
 *.csr
 .DS_Store
+*.key
+*.srl
+*.pid
+krishna-bundle/
+*.log

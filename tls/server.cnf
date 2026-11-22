@@ -1,0 +1,6 @@
+[ req ]
+distinguished_name = dn
+prompt             = no
+[ dn ]
+CN = app.team1.test
+O  = CN Project team1

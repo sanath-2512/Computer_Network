@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 2 Architecture Document</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #1e293b; background: #fff; }
+h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+h2 { color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-top: 32px; }
+h3 { color: #334155; margin-top: 24px; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: #0f172a; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.88em; }
+pre code { background: none; color: inherit; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
+th { background: #f8fafc; color: #0f172a; font-weight: 600; }
+tr:nth-child(even) { background: #f8fafc; }
+blockquote { border-left: 4px solid #3b82f6; margin: 16px 0; padding: 8px 16px; background: #eff6ff; color: #1e40af; }
+hr { border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<h1>Computer Networks Course Project — Phase 2 Architecture Document</h1>
+<p><strong>Team 1 — Private Network Service Platform: Hardened 2-Node Topology</strong>  </p>
+<p><strong>Date</strong>: November 2026 | <strong>Academic Term</strong>: Fall 2026</p>
+<hr>
+<h2>1. Executive Summary & Topology Evolution</h2>
+<p>In Phase 1, our team deployed a 3-laptop architecture across three physical MacBooks (Mac 1: DNS & Backend B, Mac 2: Nginx Edge & TLS, Mac 3: Backend A & Client).</p>
+<p>In <strong>Phase 2 (Harden, Recover, and Troubleshoot)</strong>, the network was redesigned and re-engineered for a robust <strong>2-laptop deployment</strong> operating exclusively between <strong>Aryan's Mac</strong> and <strong>Krishna's Mac</strong> over a unified physical Wi-Fi LAN (<code>10.7.0.0/19</code>). The platform enforces DNS redundancy, fast-converging TTL management, kernel-level packet filter (PF) service isolation, upstream passive high availability, and dynamic standby edge failover.</p>
+<pre><code>                              =============================================
+<p>                              PHYSICAL WI-FI LAN (Subnet 10.7.0.0/19, en0)</p>
+<p>                              =============================================</p>
+<p>                                      |                             |</p>
+<p>                                      |                             |</p>
+<p>             +----------------------------------+         +----------------------------------+</p>
+<p>             |       KRISHNA'S MACBOOK          |         |         ARYAN'S MACBOOK          |</p>
+<p>             |          (10.7.9.214)            |         |          (10.7.11.108)           |</p>
+<p>             +----------------------------------+         +----------------------------------+</p>
+<p>             |                                  |         |                                  |</p>
+<p>             | 1. Primary DNS (dnsmasq, port 53)|         | 1. Main Nginx Edge (80 -&gt; 443)   |</p>
+<p>             |    Authoritative for team1.test  |         |    TLS 1.2/1.3, HTTP/2 ALPN      |</p>
+<p>             |                                  |         |    Passive Upstream Health Check |</p>
+<p>             | 2. Client Test Runner            |         |                                  |</p>
+<p>             |    curl, dig, scutil, dscacheutil|         | 2. Backup DNS (dnsmasq, port 53) |</p>
+<p>             |                                  |         |    Authoritative, TTL 30s        |</p>
+<p>             | 3. Packet Analysis Engine        |         |                                  |</p>
+<p>             |    Wireshark / tshark on en0     |         | 3. Backend A (Python, port 3001) |</p>
+<p>             |                                  |         |    REST Service, X-Backend: A    |</p>
+<p>             | 4. Standby Nginx Edge (Ext E)    |         |                                  |</p>
+<p>             |    Dormant reverse proxy (443)   |         | 4. Backend B (Python, port 3002) |</p>
+<p>             |    Reverse proxies to Aryan's    |         |    REST Service, X-Backend: B    |</p>
+<p>             |    backends during migration     |         |                                  |</p>
+<p>             |                                  |         | 5. PF Firewall (Packet Filter)   |</p>
+<p>             |                                  |         |    Anchor com.apple/team1_is...  |</p>
+<p>             |                                  |         |    Blocks direct LAN to 3001/3002|</p>
+<p>             +----------------------------------+         +----------------------------------+</p>
+</code></pre>
+<hr>
+<h2>2. Machine Roles & IP / Service Table</h2>
+<table>
+<tr><th>Machine</th><th>Person</th><th>Physical IPv4</th><th>Network Services</th><th>Transport Port</th><th>Role / Cloud Equivalent</th></tr>
+<tr><td><strong>Mac 1</strong></td><td><strong>Krishna</strong></td><td><code>10.7.9.214</code></td><td>Primary DNS (<code>dnsmasq</code>)</td><td>UDP / TCP 53</td><td>Primary Managed Resolver (AWS Route 53 Primary)</td></tr>
+<tr><td></td><td></td><td></td><td>Test Client (<code>curl</code>, <code>dig</code>)</td><td>Ephemeral Ports</td><td>Client Device / Packet Analyzer</td></tr>
+<tr><td></td><td></td><td></td><td>Standby Nginx Edge (Ext E)</td><td>TCP 443</td><td>Multi-Region Standby Edge / Warm Standby</td></tr>
+<tr><td><strong>Mac 2</strong></td><td><strong>Aryan</strong></td><td><code>10.7.11.108</code></td><td>Main Edge Proxy (<code>nginx</code>)</td><td>TCP 80, TCP 443</td><td>Cloud Application Load Balancer / CDN Edge</td></tr>
+<tr><td></td><td></td><td></td><td>Backup DNS (<code>dnsmasq</code>)</td><td>UDP / TCP 53</td><td>Secondary DNS Resolver (Route 53 Secondary)</td></tr>
+<tr><td></td><td></td><td></td><td>Backend Service A</td><td>TCP 3001</td><td>App Server Instance A (Availability Zone 1)</td></tr>
+<tr><td></td><td></td><td></td><td>Backend Service B</td><td>TCP 3002</td><td>App Server Instance B (Availability Zone 2)</td></tr>
+<tr><td></td><td></td><td></td><td>Packet Filter (<code>pfctl</code>)</td><td>Kernel-level L3/L4</td><td>Security Group / VPC Network ACL</td></tr>
+</table>
+<hr>
+<h2>3. Detailed Request Flow by Protocol Layer</h2>
+<p>When Krishna requests <code>https://app.team1.test/api/status</code>, the request travels through seven distinct protocol stages:</p>
+<pre><code>[Krishna Client]
+<p>       │</p>
+<p>       ▼ (Step 1: DNS Resolution)</p>
+<p>Queries Primary DNS (10.7.9.214:53 UDP). If primary is down, system resolver queries Backup DNS (10.7.11.108:53).</p>
+<p>Resolver responds with Authoritative A-Record: 10.7.11.108 (TTL = 30 seconds).</p>
+<p>       │</p>
+<p>       ▼ (Step 2: TCP 3-Way Handshake)</p>
+<p>Client initiates TCP connection to Aryan's IP: 10.7.11.108 on destination port 443.</p>
+<p>Packet sequence: SYN (Client -&gt; Aryan) ──&gt; SYN-ACK (Aryan -&gt; Client) ──&gt; ACK (Client -&gt; Aryan).</p>
+<p>       │</p>
+<p>       ▼ (Step 3: TLS 1.3 Handshake &amp; ALPN)</p>
+<p>Client sends ClientHello with SNI (<code>app.team1.test</code>) and ALPN (<code>h2, http/1.1</code>).</p>
+<p>Aryan's Nginx responds with ServerHello (TLS 1.3), Certificate, CertificateVerify, and Finished.</p>
+<p>Client validates server certificate against trusted <code>team1 Local Root CA</code> in macOS System Keychain.</p>
+<p>ALPN negotiates HTTP/2 (<code>h2</code>).</p>
+<p>       │</p>
+<p>       ▼ (Step 4: HTTP/2 Request &amp; Reverse Proxy)</p>
+<p>Client sends encrypted frame: <code>GET /api/status HTTP/2</code> over TLS stream.</p>
+<p>Nginx terminates TLS, inspects URI and Host header, and applies upstream load balancing algorithm.</p>
+<p>       │</p>
+<p>       ▼ (Step 5: macOS Packet Filter Enforcement)</p>
+<p>Nginx proxies request internally to <code>127.0.0.1:3001</code> or <code>127.0.0.1:3002</code> over loopback (<code>lo0</code>).</p>
+<p>Physical Wi-Fi interface (<code>en0</code>) drops any incoming LAN packets to 3001/3002 via PF anchor rule:</p>
+<p><code>block drop in quick on en0 proto tcp from any to 10.7.11.108 port { 3001, 3002 }</code>.</p>
+<p>       │</p>
+<p>       ▼ (Step 6: Backend Execution)</p>
+<p>Python REST backend receives HTTP/1.1 request, injects <code>X-Backend: A</code> (or <code>B</code>), <code>Cache-Control: no-store</code>,</p>
+<p>and JSON payload: <code>{"backend": "A", "status": "ok", "port": 3001, ...}</code>.</p>
+<p>       │</p>
+<p>       ▼ (Step 7: HTTP/2 Response)</p>
+<p>Nginx frames backend response into encrypted HTTP/2 data frames and returns them to Krishna.</p>
+</code></pre>
+<hr>
+<h2>4. Single Point of Failure (SPOF) Analysis & Architectural Trade-offs</h2>
+<table>
+<tr><td>Component</td><td>Phase 1 Vulnerability</td><td>Phase 2 Mitigation</td><td>Remaining SPOF & Production Fix</td></tr>
+<tr><td><strong>DNS Resolver</strong></td><td>Single <code>dnsmasq</code> on Mac 1; outage halted all lookups.</td><td>Added independent Backup DNS on Aryan's Mac (<code>10.7.11.108:53</code>) with identical records and TTL 30s.</td><td>Both resolvers share LAN broadcast domain. Production fix: Anycast BGP routing across distinct ASNs.</td></tr>
+<tr><td><strong>Edge Proxy (Nginx)</strong></td><td>Single edge on Aryan's Mac; failure severed ingress.</td><td>Added dormant Standby Edge on Krishna's Mac (Extension E) with verified DNS cutover capability.</td><td>Manual DNS cutover takes ~30s. Production fix: BGP Anycast VIP with ECMP (Equal-Cost Multi-Path).</td></tr>
+<tr><td><strong>Backend Hardware</strong></td><td>Run on separate laptops (Mac 1 and Mac 3).</td><td>Co-located on Aryan's machine; isolated by port, process memory, and PF firewall.</td><td>Aryan's physical hardware is a single failure domain. Production fix: Separate physical bare-metal hosts or AZs.</td></tr>
+<tr><td><strong>Health Checking</strong></td><td>Passive retries via <code>proxy_next_upstream</code>.</td><td>Passive health check skips dead backend for 10s upon first failure; zero client error drops.</td><td>Requires at least 1 client request to discover a failed backend. Production fix: Active synthetic health probes (HTTP probe daemon).</td></tr>
+<tr><td><strong>Backend Access Control</strong></td><td>Backends exposed on 0.0.0.0 across entire LAN.</td><td>Enforced kernel PF rule on <code>en0</code> dropping all inbound LAN TCP packets to 3001 & 3002.</td><td>Source-IP migration rule trusts Krishna's entire host. Production fix: Mutual TLS (mTLS) with client certificate verification.</td></tr>
+</table>
+</body>
+</html>
