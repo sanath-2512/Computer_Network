@@ -5,59 +5,76 @@ Team: Aryan Bhargava (10.7.11.108 - Edge/Backends/Backup DNS) & Krishna Dubale (
 Domain: team1.test (Subnet: 10.7.0.0/19, en0)
 Date: November 2026
 
-All evidence files below are live captures and actual terminal exports collected across the physical Wi-Fi LAN:
+Both visual screenshot images (.png) and raw terminal execution transcripts (.txt)
+are provided below for complete evidentiary proof.
 
 --------------------------------------------------------------------------------
-1. NETWORK TOPOLOGY, DISCOVERY & PREFLIGHT
+1. NETWORK TOPOLOGY & LAN DISCOVERY (TASK A)
 --------------------------------------------------------------------------------
-- docs/PHASE2_ARCHITECTURE.md          Detailed 2-node topology, protocol flow, and SPOF analysis.
-- docs/PHASE2_FINAL_REPORT.md          Comprehensive Phase 2 final report, test results, and learning summaries.
-- evidence/phase2/full-verification-*.log Live preflight and complete service verification console log.
+- Image:   01-phase2-lan-discovery-aryan.png          Terminal screenshot of en0 IP, default route, and ping.
+- Text:    peer_ip_independent_confirmation.txt      ARP table entry, ICMP ping statistics, and Nginx/DNS logs.
+- Doc:     docs/PHASE2_ARCHITECTURE.md                Detailed 2-node topology diagram and service mapping.
 
 --------------------------------------------------------------------------------
 2. PROTOCOL PACKET CAPTURES (WIRESHARK / TSHARK)
 --------------------------------------------------------------------------------
-- evidence/phase1-flow.pcapng          Phase 1 full protocol flow capture (DNS query, TCP handshake, TLS handshake, HTTP).
-- evidence/phase2/dns-failover.pcapng  Phase 2 live promiscuous capture (1.5 MB) on en0 showing primary DNS stoppage
-                                       and automated query redirection to backup DNS (10.7.11.108:53).
+- Capture: dns-failover.pcapng                        Promiscuous packet capture (1.5 MB) on en0 showing primary DNS outage
+                                                      and automated query redirection to backup DNS (10.7.11.108:53).
+- Capture: evidence/phase1-flow.pcapng                Phase 1 full protocol flow capture (DNS, TCP 3-way, TLS, HTTP).
 
 --------------------------------------------------------------------------------
-3. TLS TERMINATION & KEYCHAIN VALIDATION (TASK E / EXTENSION C)
+3. TLS TERMINATION & KEYCHAIN TRUST (TASK E)
 --------------------------------------------------------------------------------
-- evidence/phase2/curl_strict_tls_status.txt Verbose client curl output showing TLS 1.3 handshake, HTTP/2 ALPN,
-                                       SAN validation (app.team1.test, api.team1.test), and Keychain trust (no -k / --insecure).
+- Image:   02-phase2-strict-tls-status.png            Terminal screenshot of curl -v showing TLS 1.3, HTTP/2 ALPN,
+                                                      SAN matching, and macOS System Keychain trust (zero -k flags).
+- Text:    curl_strict_tls_status.txt                 Raw terminal output of strict TLS verification.
 
 --------------------------------------------------------------------------------
-4. LOAD BALANCING & HTTP/2 (TASK D)
+4. ROUND-ROBIN LOAD BALANCING (TASK D)
 --------------------------------------------------------------------------------
-- evidence/phase2/full-verification-*.log 10 consecutive HTTPS requests showing 1:1 round-robin alternation (X-Backend: A/B).
+- Image:   03-phase2-load-balancing-roundrobin.png    Terminal screenshot showing 10 requests alternating A and B (1:1 ratio).
+- Text:    full-verification-aryan.txt                Raw execution log of 10-request round-robin distribution.
 
 --------------------------------------------------------------------------------
-5. HTTP CACHING & CONDITIONAL 304 (TASK F)
+5. HTTP CACHING & 304 REVALIDATION (TASK F)
 --------------------------------------------------------------------------------
-- evidence/phase2/cache_initial_200.txt     Initial GET /api/cached returning 200 OK with ETag: "22926ba9d1982e7c".
-- evidence/phase2/cache_conditional_304.txt Conditional GET with If-None-Match returning HTTP/2 304 Not Modified.
+- Image:   04-phase2-caching-200-then-304.png         Terminal screenshot of initial 200 with ETag -> conditional 304.
+- Text:    cache_initial_200.txt & cache_conditional_304.txt Raw response headers and status codes.
 
 --------------------------------------------------------------------------------
 6. EXTENSION C: PF FIREWALL SERVICE ISOLATION
 --------------------------------------------------------------------------------
-- evidence/phase2/nc_3001.txt          Client nc -vz -G 2 10.7.11.108 3001 times out (blocked by PF anchor on en0).
-- evidence/phase2/nc_3002.txt          Client nc -vz -G 2 10.7.11.108 3002 times out (blocked by PF anchor on en0).
-- config/phase2/pf-isolation.conf      Kernel PF rule blocking inbound TCP 3001/3002 on physical en0.
+- Image:   05-phase2-pf-firewall-service-isolation.png Terminal screenshot of nc 3001/3002 timing out (blocked by PF)
+                                                      while local loopback proxying succeeds.
+- Text:    nc_3001.txt & nc_3002.txt                  Client-side connection timeout evidence.
+- Config:  config/phase2/pf-isolation.conf            Kernel PF rule blocking inbound TCP 3001/3002 on en0.
 
 --------------------------------------------------------------------------------
 7. EXTENSION D: BACKEND HIGH AVAILABILITY PASSIVE FAILOVER
 --------------------------------------------------------------------------------
-- evidence/phase2/backend-failover-a-down.txt 5 consecutive client requests routing 100% to Backend B during Backend A outage.
-- evidence/phase2/backend-recovery-roundrobin.txt 6 consecutive requests after Backend A restart showing round-robin rejoin.
-- evidence/phase2/ha-test-*.log        Aryan's automated HA test execution log with timestamped failure/rejoin validation.
+- Image:   06-phase2-backend-ha-failover-a-down.png   Terminal screenshot showing Backend A down and 100% failover to B.
+- Image:   07-phase2-backend-ha-recovery-rejoin.png   Terminal screenshot showing Backend A restart and round-robin rejoin.
+- Text:    backend-failover-a-down.txt & backend-recovery-roundrobin.txt Raw terminal outputs during outage and recovery.
+- Log:     ha-test-failover-recovery.txt              Timestamped passive health check failure/rejoin validation log.
 
 --------------------------------------------------------------------------------
-8. EXTENSION E: STANDBY EDGE MIGRATION
+8. EXTENSION A: BACKUP DNS RESOLVER FAILOVER
 --------------------------------------------------------------------------------
-- evidence/phase2/migration_nc_3001.txt Direct connectivity permitted through temporary PF migration rule.
-- evidence/phase2/migration_nc_3002.txt Direct connectivity permitted through temporary PF migration rule.
-- evidence/phase2/standby_edge_curl.txt Proof of client curl request to 10.7.9.214:443 served by Krishna's Standby Nginx
-                                       (server: nginx/1.31.9) successfully proxying to Aryan's backends.
-- evidence/phase2/dns-cutover-*.log    Log recording DNS cutover to 10.7.9.214 and clean restoration back to 10.7.11.108.
+- Image:   08-phase2-dns-failover-backup-resolver.png Terminal screenshot of primary DNS down and backup DNS answering.
+- Text:    ext_a_system_resolver_failover.txt         System stub resolver (dscacheutil) failover transcript.
+
+--------------------------------------------------------------------------------
+9. EXTENSION E: STANDBY EDGE MIGRATION
+--------------------------------------------------------------------------------
+- Image:   09-phase2-standby-edge-migration.png       Terminal screenshot showing Standby Nginx (1.31.9) on 10.7.9.214
+                                                      serving requests proxying across LAN to Aryan's backends.
+- Text:    standby_edge_curl.txt                      Raw curl output through Standby Edge.
+- Text:    migration_nc_3001.txt & migration_nc_3002.txt Direct connectivity through temporary migration firewall rule.
+
+--------------------------------------------------------------------------------
+10. EXTENSION B: CONTROLLED TTL & RECORD CUTOVER
+--------------------------------------------------------------------------------
+- Image:   10-phase2-dns-cutover-and-restore.png      Terminal screenshot of 30-second TTL cutover and restoration.
+- Text:    ext_b_ttl_30s_cache_behavior.txt           Cached copy expiration countdown and flush behavior.
+- Text:    dns-cutover-30s-ttl.txt                    Raw record cutover and restore log.
 ================================================================================
