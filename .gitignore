@@ -1,9 +1,6 @@
-*.key
-*.srl
-*.csr
 .DS_Store
 *.key
 *.srl
+*.csr
 *.pid
 krishna-bundle/
-*.log

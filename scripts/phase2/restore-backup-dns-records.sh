@@ -6,19 +6,24 @@ PIDFILE="$BASE/pids/dnsmasq-backup.pid"
 ARYAN_IP="10.7.11.108"
 BREW_PREFIX="$(brew --prefix)"
 
-echo "Restoring backup DNS records: pointing app.team1.test & api.team1.test to ARYAN_IP ($ARYAN_IP)..."
+echo "[DNS Restore] Restoring backup DNS records: app.team1.test & api.team1.test -> $ARYAN_IP (TTL 30)..."
 sed -i '' -e "s/^host-record=app\.team1\.test,.*/host-record=app.team1.test,$ARYAN_IP,30/" "$CONF"
 sed -i '' -e "s/^host-record=api\.team1\.test,.*/host-record=api.team1.test,$ARYAN_IP,30/" "$CONF"
 
-echo "Validating dnsmasq configuration syntax..."
+echo "[DNS Restore] Validating dnsmasq configuration syntax..."
 "$BREW_PREFIX/sbin/dnsmasq" --test -C "$CONF"
 
-echo "Reloading backup dnsmasq process..."
-if [ -f "$PIDFILE" ] && sudo kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    sudo kill -HUP "$(cat "$PIDFILE")" 2>/dev/null || sudo "$BASE/scripts/start-backup-dns.sh"
-else
-    sudo "$BASE/scripts/start-backup-dns.sh"
+echo "[DNS Restore] Safely restarting backup dnsmasq process to apply restored records..."
+if [ -f "$PIDFILE" ]; then
+    PID=$(cat "$PIDFILE")
+    sudo kill "$PID" 2>/dev/null || true
+    for i in {1..5}; do
+        if ! sudo kill -0 "$PID" 2>/dev/null; then break; fi
+        sleep 0.5
+    done
 fi
+sudo "$BREW_PREFIX/sbin/dnsmasq" -C "$CONF"
+sleep 1
 
-echo "Verifying backup DNS response for app.team1.test:"
+echo "[DNS Restore] Verifying backup DNS answer for app.team1.test:"
 dig @10.7.11.108 app.team1.test +noall +answer

@@ -1,0 +1,28 @@
+=== INDEPENDENT PEER IP & PHYSICAL REACHABILITY CONFIRMATION ===
+Target Peer: Krishna Dubale (Mac 1)
+Claimed IP:  10.7.9.214
+
+[1. ARP Table Discovery on Aryan's Mac (en0)]
+$ arp -n 10.7.9.214
+? (10.7.9.214) at d6:69:0:de:9d:e6 on en0 ifscope [ethernet]
+Status: Neighbor MAC address dynamically resolved via ARP on local subnet 10.7.0.0/19.
+
+[2. Direct ICMP Ping RTT Measurement]
+$ ping -c 3 10.7.9.214
+64 bytes from 10.7.9.214: icmp_seq=0 ttl=64 time=14.556 ms
+64 bytes from 10.7.9.214: icmp_seq=1 ttl=64 time=9.797 ms
+64 bytes from 10.7.9.214: icmp_seq=2 ttl=64 time=10.520 ms
+--- 10.7.9.214 ping statistics ---
+3 packets transmitted, 3 packets received, 0.0% packet loss
+
+[3. Incoming Connection Log Proof (Nginx Access Log)]
+10.7.9.214 - - [23/Nov/2026:00:59:09 +0530] "GET /api/status HTTP/2.0" 200 123 "-" "curl/8.7.1"
+10.7.9.214 - - [23/Nov/2026:01:02:09 +0530] "GET /api/status HTTP/2.0" 200 123 "-" "curl/8.7.1"
+10.7.9.214 - - [23/Nov/2026:01:09:05 +0530] "GET /api/status HTTP/1.1" 200 123 "-" "-"
+
+[4. Incoming DNS Query Proof (Dnsmasq Backup Log)]
+Nov 23 01:02:06 dnsmasq[16476]: query[A] app.team1.test from 10.7.9.214
+Nov 23 01:02:06 dnsmasq[16476]: config app.team1.test is 10.7.11.108
+
+[Conclusion]
+10.7.9.214 is independently confirmed as Krishna's live physical address on the LAN.

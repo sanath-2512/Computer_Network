@@ -45,60 +45,36 @@ The platform operates across two physical macOS machines with complete separatio
 
 ## Deliverables & Documentation Index
 
+- **Automated Node Bootstrap**: [`bootstrap-phase2.sh`](bootstrap-phase2.sh) *(Configures any node to Phase 2 runtime)*
 - **Phase 2 Architecture Document**: [`docs/PHASE2_ARCHITECTURE.md`](docs/PHASE2_ARCHITECTURE.md) ([HTML View](docs/PHASE2_ARCHITECTURE.html))
 - **Phase 2 Final Engineering Report**: [`docs/PHASE2_FINAL_REPORT.md`](docs/PHASE2_FINAL_REPORT.md) ([HTML View](docs/PHASE2_FINAL_REPORT.html))
 - **Phase 1 Architecture**: [`docs/architecture.pdf`](docs/architecture.pdf)
 - **Phase 1 Evidence**: [`evidence/INDEX.txt`](evidence/INDEX.txt) & [`evidence/phase1-flow.pcapng`](evidence/phase1-flow.pcapng)
-- **Phase 2 Evidence**: [`evidence/phase2/INDEX.txt`](evidence/phase2/INDEX.txt)
+- **Phase 2 Evidence**: [`evidence/phase2/INDEX.txt`](evidence/phase2/INDEX.txt) & [`evidence/phase2/dns-failover.pcapng`](evidence/phase2/dns-failover.pcapng)
 - **Phase 2 Configuration Bundle**: [`config/phase2/`](config/phase2/)
 - **Phase 2 Automation Scripts**: [`scripts/phase2/`](scripts/phase2/)
 
 ---
 
-## Rapid Evaluation Quick Start (11-Step Sequence)
+## Official 11-Step Final Demonstration Sequence (Section 8 Course Rubric)
 
-During evaluation, run the following commands sequentially:
+Every team prepares to show all 11 steps sequentially during the faculty evaluation:
 
-```bash
-# 1. Inspect Inventory & Network Interfaces
-cat docs/PHASE2_ARCHITECTURE.md
+| Step | Demonstration Item | What the Evaluator Expects to See | Execution Command |
+| :---: | :--- | :--- | :--- |
+| **1** | **Show topology and IP/service inventory** | Display network diagram, IP table, and service map. Roles must be clear. | `cat docs/PHASE2_ARCHITECTURE.md` |
+| **2** | **Confirm all machines on private LAN** | Run ping between machines; show each IP address. | `ping -c 2 10.7.9.214` |
+| **3** | **Resolve private domain from client** | Run `dig app.team1.test` showing resolution to Aryan's IP via team DNS. | `dig @10.7.9.214 app.team1.test +short`<br>`dig @10.7.11.108 app.team1.test +short` |
+| **4** | **Open service over HTTPS using domain name** | Open `https://app.team1.test` via curl/browser. No certificate warnings, no IP in URL. | `curl -v https://app.team1.test/api/status` |
+| **5** | **Show load balancing across both backends** | Repeated requests showing `X-Backend: A` and `X-Backend: B` alternating. | `for i in {1..6}; do curl -s -i https://app.team1.test/api/status \| grep "x-backend:"; done` |
+| **6** | **Show Wireshark evidence of DNS, TCP, TLS** | Open capture. Point to DNS query/response, TCP 3-way handshake, TLS handshake. | Open `evidence/phase2/dns-failover.pcapng` and `evidence/phase1-flow.pcapng` in Wireshark |
+| **7** | **Show HTTP headers and caching behavior** | `curl -I` showing Cache-Control. Demonstrate 304 Not Modified or cache hit. | `curl -s -i https://app.team1.test/api/cached`<br>`curl -s -i -H 'If-None-Match: "22926ba9d1982e7c"' https://app.team1.test/api/cached` |
+| **8** | **Fail one backend & prove service continues**| Stop Backend A. Show requests still succeed through Backend B only. | `scripts/phase2/stop-backend-A.sh`<br>`for i in {1..4}; do curl -s -i https://app.team1.test/api/status \| grep "x-backend:"; done`<br>`scripts/phase2/start-backend-A.sh` |
+| **9** | **Demonstrate Phase 2 DNS & resilience behavior**| Show backup DNS failover, TTL/caching, or DNS-based cutover (Ext A/B/E). | Show Ext A DNS failover capture (`dns-failover.pcapng`), Ext B TTL cutover, or Ext C PF isolation |
+| **10**| **Diagnose faculty-injected fault** | Team diagnoses and fixes fault layer by layer: DNS -> TCP -> TLS -> App. | Follow Section 3 runbook in [`docs/PHASE2_FINAL_REPORT.md`](docs/PHASE2_FINAL_REPORT.md) |
+| **11**| **Individual viva questions** | Every team member answers individual conceptual questions. | Follow Section 6 viva guide in [`docs/PHASE2_FINAL_REPORT.md`](docs/PHASE2_FINAL_REPORT.md) |
 
-# 2. Verify Same-LAN Connectivity
-ping -c 2 10.7.9.214
-
-# 3. Verify DNS Resolution (Primary & Backup)
-dig @10.7.9.214 app.team1.test +short
-dig @10.7.11.108 app.team1.test +short
-
-# 4. HTTPS over Domain Name (TLS 1.3 / HTTP/2)
-curl -v https://app.team1.test/api/status
-
-# 5. Round-Robin Load Balancing
-for i in {1..6}; do curl -s -i https://app.team1.test/api/status | grep "x-backend:"; done
-
-# 6. Wireshark Evidence
-# Open evidence/phase1-flow.pcapng or evidence/phase2/dns-failover.pcapng
-
-# 7. HTTP Caching & 304 Revalidation
-curl -s -i https://app.team1.test/api/cached | grep -E "(ETag|Cache-Control)"
-# Conditional request with ETag:
-curl -s -i -H 'If-None-Match: "22926ba9d1982e7c"' https://app.team1.test/api/cached | grep "HTTP/"
-
-# 8. Backend Failure (Stop A -> 100% traffic to B)
-scripts/phase2/stop-backend-A.sh
-for i in {1..4}; do curl -s -i https://app.team1.test/api/status | grep "x-backend:"; done
-scripts/phase2/start-backend-A.sh
-
-# 9. Packet Filter Firewall Isolation
-# From Krishna (LAN): nc -vz -w 2 10.7.11.108 3001 -> Operation timed out
-# From Aryan (Local): curl http://127.0.0.1:3001/api/status -> HTTP 200
-
-# 10. Fault Diagnosis (Layer Hierarchy)
-# Check: DNS (dig) -> TCP (nc) -> TLS (openssl s_client) -> App (curl)
-
-# 11. Rollback to Baseline (When Finished)
-scripts/phase2/rollback.sh
-```
+*(To clean up and restore your machines to baseline after evaluation: run `scripts/phase2/rollback.sh`).*
 
 ---
 

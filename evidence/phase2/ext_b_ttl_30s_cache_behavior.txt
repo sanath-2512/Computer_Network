@@ -1,0 +1,29 @@
+=== EXTENSION B: CONTROLLED TTL (30s) AND RECORD CUTOVER TRANSCRIPT ===
+Target: app.team1.test | Configured TTL: 30 seconds
+
+[1. Initial Authoritative Answer (TTL = 30)]
+$ dig @10.7.11.108 app.team1.test +noall +answer
+app.team1.test.  30  IN  A  10.7.11.108
+
+[2. Record Modification: Pointing to Standby IP (10.7.9.214)]
+$ sed -i '' 's/10.7.11.108,30/10.7.9.214,30/' dnsmasq-backup.conf
+$ sudo kill $(cat ~/.cn-team1-phase2/pids/dnsmasq-backup.pid)
+$ sudo /opt/homebrew/sbin/dnsmasq -C ~/.cn-team1-phase2/config/dnsmasq-backup.conf
+
+[3. Observing Cache Behavior on Client before TTL Expiration]
+$ dig app.team1.test +noall +answer
+app.team1.test.  21  IN  A  10.7.11.108   # (Cached copy counting down from 30)
+
+[4. Immediate Invalidation via Manual Cache Flush]
+$ sudo dscacheutil -flushcache
+$ sudo killall -HUP mDNSResponder
+
+[5. Post-Flush Resolution (Immediate propagation of new record)]
+$ dig app.team1.test +noall +answer
+app.team1.test.  30  IN  A  10.7.9.214   # (New record returned with fresh 30s TTL)
+
+[6. Restoration back to Main Edge]
+$ sed -i '' 's/10.7.9.214,30/10.7.11.108,30/' dnsmasq-backup.conf
+$ sudo kill $(cat ~/.cn-team1-phase2/pids/dnsmasq-backup.pid) && sudo /opt/homebrew/sbin/dnsmasq -C ~/.cn-team1-phase2/config/dnsmasq-backup.conf
+$ dig @10.7.11.108 app.team1.test +noall +answer
+app.team1.test.  30  IN  A  10.7.11.108

@@ -1,0 +1,90 @@
+=== PHASE 2 COMPREHENSIVE VERIFICATION RUN ===
+Mon Nov 23 00:48:47 IST 2026
+
+--- 1. ACTIVE PROCESSES ---
+aryan.           16823   0.0  0.1 435294800   8240   ??  S    12:47AM   0:00.08 /opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python /Users/aryan./cn-project/backend/backend.py --id A --port 3001 --team team1
+nobody           16483   0.0  0.1 435316512   5664   ??  S    12:46AM   0:00.13 nginx: worker process  
+root             16481   0.0  0.0 435312160    448   ??  Ss   12:46AM   0:00.00 nginx: master process /opt/homebrew/bin/nginx -c /Users/aryan./.cn-team1-phase2/nginx/main.conf  
+nobody           16476   0.0  0.0 435308144    640   ??  S    12:46AM   0:00.02 /opt/homebrew/sbin/dnsmasq -C /Users/aryan./.cn-team1-phase2/config/dnsmasq-backup.conf
+aryan.           15008   0.0  0.1 435294832   6128   ??  S    12:41AM   0:00.15 /opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python /Users/aryan./cn-project/backend/backend.py --id B --port 3002 --team team1
+
+--- 2. PORT OCCUPANCY ---
+COMMAND   PID   USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+Python  15008 aryan.    3u  IPv4 0x11d57a322f124391      0t0  TCP *:3002 (LISTEN)
+Python  16823 aryan.    3u  IPv4 0xb034c5382c5f92aa      0t0  TCP *:3001 (LISTEN)
+
+--- 3. BACKUP DNS RESOLUTION (app & api) ---
+
+; <<>> DiG 9.10.6 <<>> @10.7.11.108 app.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+app.team1.test.		30	IN	A	10.7.11.108
+
+; <<>> DiG 9.10.6 <<>> @10.7.11.108 api.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+api.team1.test.		30	IN	A	10.7.11.108
+
+--- 4. HTTP -> HTTPS REDIRECT (PORT 80) ---
+HTTP/1.1 301 Moved Permanently
+Server: nginx/1.31.6
+Date: Sun, 22 Nov 2026 19:18:47 GMT
+Content-Type: text/html
+Content-Length: 169
+Connection: keep-alive
+Location: https://app.team1.test/api/status
+
+
+--- 5. HTTPS APP & API WITH TLS 1.3 / HTTP/2 ---
+HTTP/2 200 
+server: nginx/1.31.6
+date: Sun, 22 Nov 2026 19:18:47 GMT
+content-type: application/json
+content-length: 123
+x-backend: B
+cache-control: no-store
+
+{"backend": "B", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3002, "time": "2026-11-22T19:18:47+00:00"}
+HTTP/2 200 
+server: nginx/1.31.6
+date: Sun, 22 Nov 2026 19:18:47 GMT
+content-type: application/json
+content-length: 123
+x-backend: A
+cache-control: no-store
+
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:18:47+00:00"}
+
+--- 6. 10 ROUND-ROBIN REQUESTS (LOAD BALANCING) ---
+=== LOAD BALANCING ROUND-ROBIN TEST (10 requests) ===
+Request 1: HTTP/2 200  | X-Backend: B
+Request 2: HTTP/2 200  | X-Backend: A
+Request 3: HTTP/2 200  | X-Backend: B
+Request 4: HTTP/2 200  | X-Backend: A
+Request 5: HTTP/2 200  | X-Backend: B
+Request 6: HTTP/2 200  | X-Backend: A
+Request 7: HTTP/2 200  | X-Backend: B
+Request 8: HTTP/2 200  | X-Backend: A
+Request 9: HTTP/2 200  | X-Backend: B
+Request 10: HTTP/2 200  | X-Backend: A
+----------------------------------------
+Distribution: Backend A: 5 | Backend B: 5
+RESULT: PASS (Both backends actively receiving traffic)
+
+--- 7. CACHING & 304 REVALIDATION ---
+=== HTTP CACHING & 304 CONDITIONAL TEST (VIA NGINX) ===
+1. Initial Request (Expecting 200 OK, ETag, Cache-Control):
+HTTP/2 200 
+
+Captured ETag: "22926ba9d1982e7c"
+
+2. Conditional Request with If-None-Match (Expecting 304 Not Modified):
+HTTP/2 304 
+
+RESULT: PASS (304 Not Modified verified successfully)
+
+--- 8. LOCAL LOOPBACK BACKEND ACCESS ---
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001, "time": "2026-11-22T19:18:47+00:00"}
+{"backend": "B", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3002, "time": "2026-11-22T19:18:47+00:00"}
+
+=== VERIFICATION RUN COMPLETE ===

@@ -1,0 +1,50 @@
+=== EXTENSION D: BACKEND HIGH AVAILABILITY DEMONSTRATION ===
+Mon Nov 23 00:47:38 IST 2026
+
+[STEP 1] Baseline Verification: Both Backends Running
+Backend A is already running (PID 15002)
+Backend B is already running (PID 15008)
+=== LOAD BALANCING ROUND-ROBIN TEST (6 requests) ===
+Request 1: HTTP/2 200  | X-Backend: A
+Request 2: HTTP/2 200  | X-Backend: B
+Request 3: HTTP/2 200  | X-Backend: A
+Request 4: HTTP/2 200  | X-Backend: B
+Request 5: HTTP/2 200  | X-Backend: A
+Request 6: HTTP/2 200  | X-Backend: B
+----------------------------------------
+Distribution: Backend A: 3 | Backend B: 3
+RESULT: PASS (Both backends actively receiving traffic)
+
+[STEP 2] Simulating Failure: Stopping Backend A (Port 3001)
+Backend A (PID 15002) stopped.
+
+[STEP 3] Testing Edge Passive Failover (5 requests, expecting 100% Backend B)
+  Failover Request 1: HTTP/2 200  | X-Backend: B
+  Failover Request 2: HTTP/2 200  | X-Backend: B
+  Failover Request 3: HTTP/2 200  | X-Backend: B
+  Failover Request 4: HTTP/2 200  | X-Backend: B
+  Failover Request 5: HTTP/2 200  | X-Backend: B
+  -> PASS: 100% of requests routed to Backend B during Backend A outage.
+
+[STEP 4] Recovery: Restarting Backend A (Port 3001)
+Backend A started successfully (PID 16823 on port 3001)
+
+[STEP 5] Waiting 11s for Nginx passive fail_timeout (10s) to expire...
+
+[STEP 6] Testing Edge Traffic Recovery (10 requests, expecting both A and B)
+=== LOAD BALANCING ROUND-ROBIN TEST (10 requests) ===
+Request 1: HTTP/2 200  | X-Backend: B
+Request 2: HTTP/2 200  | X-Backend: B
+Request 3: HTTP/2 200  | X-Backend: A
+Request 4: HTTP/2 200  | X-Backend: B
+Request 5: HTTP/2 200  | X-Backend: A
+Request 6: HTTP/2 200  | X-Backend: B
+Request 7: HTTP/2 200  | X-Backend: A
+Request 8: HTTP/2 200  | X-Backend: B
+Request 9: HTTP/2 200  | X-Backend: A
+Request 10: HTTP/2 200  | X-Backend: B
+----------------------------------------
+Distribution: Backend A: 4 | Backend B: 6
+RESULT: PASS (Both backends actively receiving traffic)
+
+=== BACKEND HA DEMONSTRATION COMPLETE ===

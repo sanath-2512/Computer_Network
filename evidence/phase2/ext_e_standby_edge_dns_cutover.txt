@@ -1,0 +1,38 @@
+=== EXTENSION E: STANDBY EDGE MIGRATION & REVERSE PROXY TRANSCRIPT ===
+Old Edge: Aryan (10.7.11.108:443, nginx/1.31.6)
+New Edge: Krishna (10.7.9.214:443, nginx/1.31.9)
+Backends: 10.7.11.108:3001 (A) and 10.7.11.108:3002 (B)
+
+[1. Aryan Applies Firewall Migration Rule]
+$ sudo pfctl -a com.apple/team1_isolation -f pf-migration.conf
+pass in quick on en0 proto tcp from 10.7.9.214 to 10.7.11.108 port { 3001, 3002 }
+block drop in quick on en0 proto tcp from any to 10.7.11.108 port { 3001, 3002 }
+
+[2. Krishna Verifies Direct Backend Connectivity Through Firewall]
+$ nc -vz -G 2 10.7.11.108 3001
+Connection to 10.7.11.108 port 3001 [tcp] succeeded!
+$ nc -vz -G 2 10.7.11.108 3002
+Connection to 10.7.11.108 port 3002 [tcp] succeeded!
+
+[3. Krishna Starts Standby Nginx on Port 443]
+$ sudo nginx -c ~/.cn-team1-phase2/nginx/standby.conf
+
+[4. DNS Cutover of app.team1.test to 10.7.9.214]
+$ dig app.team1.test +short
+10.7.9.214
+
+[5. Client Request Served by Standby Edge (nginx/1.31.9)]
+$ curl -v https://app.team1.test/api/status
+* Connected to app.team1.test (10.7.9.214) port 443
+* ALPN: server accepted h2
+* SSL connection using TLSv1.3
+* SSL certificate verify ok.
+< HTTP/2 200 
+< server: nginx/1.31.9
+< x-backend: A
+{"backend": "A", "status": "ok", "host": "Aryans-MacBook-Pro-62.local", "port": 3001}
+
+[6. Clean Restoration]
+- Krishna stops standby nginx: sudo nginx -s stop
+- DNS restored to 10.7.11.108
+- Aryan restores strict isolation: sudo pfctl -a com.apple/team1_isolation -f pf-isolation.conf

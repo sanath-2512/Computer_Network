@@ -1,0 +1,10 @@
+--- 1. Current Baseline Backup DNS Answer ---
+
+; <<>> DiG 9.10.6 <<>> @10.7.11.108 app.team1.test +noall +answer
+; (1 server found)
+;; global options: +cmd
+app.team1.test.		30	IN	A	10.7.11.108
+--- 2. Executing DNS Cutover to Krishna (10.7.9.214) ---
+Updating backup DNS records: pointing app.team1.test & api.team1.test to KRISHNA_IP (10.7.9.214)...
+Validating dnsmasq configuration syntax...
+Reloading backup dnsmasq process...
