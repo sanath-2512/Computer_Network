@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Build Phase 2 Final Presentation Slide Decks:
-1. PowerPoint Presentation (.pptx)
-2. Interactive HTML Presentation (.html)
-3. PDF Export via headless Chrome (.pdf)
+1. PowerPoint Presentation (.pptx) with embedded screenshots and 16:9 layout
+2. Interactive & Printable HTML Presentation (.html) with side-by-side evidence
+3. 16:9 Landscape PDF Export via headless Chrome (.pdf)
 
 Team 1: Aryan Bhargava & Krishna Pramod Dubale
 Course: Computer Networks Project Phase 2 (Harden, Recover & Troubleshoot)
@@ -15,539 +15,264 @@ import subprocess
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
 REPO_ROOT = "/Users/aryan./cn-project"
 DOCS_DIR = os.path.join(REPO_ROOT, "docs")
 DESKTOP_DIR = "/Users/aryan./Desktop"
+DOWNLOADS_DIR = "/Users/aryan./Downloads"
+EVIDENCE_P2 = os.path.join(REPO_ROOT, "evidence", "phase2")
+EVIDENCE_P1 = os.path.join(REPO_ROOT, "evidence")
 
 PPTX_PATH = os.path.join(DOCS_DIR, "Phase2_Final_Presentation_Team1.pptx")
 HTML_PATH = os.path.join(DOCS_DIR, "PHASE2_SLIDES.html")
 PDF_PATH = os.path.join(DOCS_DIR, "Phase2_Final_Presentation_Team1.pdf")
-DESKTOP_PPTX = os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pptx")
-DESKTOP_PDF = os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pdf")
 
-# Color Palette (Dark High-Tech Theme)
-C_BG = RGBColor(15, 23, 42)          # #0F172A (Deep Slate)
+# Color Palette (Dark High-Tech Slate Theme)
+C_BG = RGBColor(11, 17, 32)          # #0B1120 (Deep Slate)
 C_CARD = RGBColor(30, 41, 59)        # #1E293B (Card Slate)
-C_CARD_BORDER = RGBColor(51, 65, 85) # #334155 (Subtle Border)
+C_BORDER = RGBColor(51, 65, 85)      # #334155 (Subtle Border)
 C_PRIMARY = RGBColor(248, 250, 252)  # #F8FAFC (White/Slate-50)
 C_MUTED = RGBColor(148, 163, 184)    # #94A3B8 (Slate-400)
-C_CYAN = RGBColor(56, 189, 248)      # #38BDF8 (Sky/Cyan Accent)
-C_GREEN = RGBColor(52, 211, 153)     # #34D399 (Emerald Green Accent)
+C_CYAN = RGBColor(56, 189, 248)      # #38BDF8 (Cyan Accent)
+C_GREEN = RGBColor(52, 211, 153)     # #34D399 (Emerald Green)
 C_ROSE = RGBColor(244, 63, 94)       # #F43F5E (Rose Accent)
 C_AMBER = RGBColor(251, 191, 36)     # #FBBF24 (Amber Accent)
 
 FONT_HEAD = "Trebuchet MS"
 FONT_BODY = "Calibri"
-FONT_CODE = "Consolas"
 
-# Slide Content Specifications
-SLIDES_DATA = [
+# Detailed Presentation Slide Definitions
+SLIDES = [
     {
-        "slide_num": 1,
-        "category": "PROJECT DEFENSE & FINAL EVALUATION",
+        "num": 1,
+        "type": "title",
+        "category": "FINAL DEFENSE & EVALUATION",
         "title": "Private Network Service Platform",
-        "subtitle": "Phase 2: Harden, Recover & Troubleshoot — Dual-Node Production Architecture",
-        "cards": [
-            {
-                "title": "Core Project Mandate",
-                "accent": "cyan",
-                "bullets": [
-                    "\"The application stays simple — the network is the project.\"",
-                    "100% Real Physical Hardware Demonstration on campus Wi-Fi (10.7.0.0/19).",
-                    "Zero virtualization, zero container wrappers, zero simulated network sockets."
-                ]
-            },
-            {
-                "title": "Node 1: Edge & Upstream Backends",
-                "accent": "green",
-                "bullets": [
-                    "Host: Aryan Bhargava (10.7.11.108 on en0)",
-                    "Services: Nginx Main Edge Proxy (:80, :443), TLS 1.3, HTTP/2",
-                    "Upstreams: Backend A (:3001) & Backend B (:3002)",
-                    "DNS: Backup DNS Server (:53, TTL 30s) + PF Kernel Firewall"
-                ]
-            },
-            {
-                "title": "Node 2: Primary DNS & Verification Client",
-                "accent": "amber",
-                "bullets": [
-                    "Host: Krishna Pramod Dubale (10.7.9.214 on en0)",
-                    "Services: Primary DNS Server (:53, dnsmasq, TTL 30s)",
-                    "Edge DR: Standby Edge Nginx (:443) pre-configured for migration",
-                    "Client: macOS strict TLS validation, curl, tshark packet capture"
-                ]
-            }
+        "subtitle": "Phase 2: Harden, Recover & Troubleshoot — Dual-Node Production Network Architecture",
+        "authors": [
+            {"name": "Aryan Bhargava", "role": "Node 1: Edge Proxy, Upstreams (A & B), Backup DNS, PF Firewall", "ip": "10.7.11.108"},
+            {"name": "Krishna Pramod Dubale", "role": "Node 2: Primary DNS Server, Standby Edge, Verification Client", "ip": "10.7.9.214"}
         ],
-        "footer": "Team 1 | Aryan Bhargava & Krishna Pramod Dubale | Computer Networks Lab Final Review"
+        "motto": "Core Mandate: \"The application stays simple — the network is the project.\"",
+        "meta": "Campus Wi-Fi Subnet: 10.7.0.0/19 | Domain: app.team1.test | November 2026 Evaluation"
     },
     {
-        "slide_num": 2,
-        "category": "EXECUTIVE SUMMARY",
-        "title": "Project Scope & Key Achievements",
-        "subtitle": "Full end-to-end production hardening across all 6 project extensions",
-        "cards": [
-            {
-                "title": "Resilient Core Infrastructure",
-                "accent": "cyan",
-                "bullets": [
-                    "Split DNS Architecture: Dual-node dnsmasq deployment on ports 53 with automated failover.",
-                    "Strict TLS 1.3 & HTTP/2: Custom Root CA with SAN validation; 0 warnings without -k.",
-                    "Layer 7 Reverse Proxy: Round-robin load balancing, HTTP caching (ETag / 304 Not Modified)."
-                ]
-            },
-            {
-                "title": "Security & High Availability",
-                "accent": "green",
-                "bullets": [
-                    "Extension A (DNS Failover): Client shifts queries to backup DNS during outage (1.6MB PCAP).",
-                    "Extension B (TTL & Cutover): 30s TTL configuration enabling rapid DNS cache propagation.",
-                    "Extension C (Service Isolation): macOS Packet Filter (PF) drops raw LAN backend access.",
-                    "Extension D (Backend HA): Nginx passive health checks reroute traffic with 0 dropped requests."
-                ]
-            },
-            {
-                "title": "Disaster Recovery & Diagnostics",
-                "accent": "rose",
-                "bullets": [
-                    "Extension E (Standby Edge): Cross-node edge migration with dynamic PF exception.",
-                    "Extension F (Troubleshooting): 60-second layer-by-layer systematic runbook.",
-                    "Evidence Bundle: 10 visual terminal screenshots, 2 PCAP files, 100% test pass rate."
-                ]
-            }
-        ],
-        "footer": "Section 9 Compliance: All requirements and all 6 extensions fully operational."
-    },
-    {
-        "slide_num": 3,
+        "num": 2,
+        "type": "split",
         "category": "ARCHITECTURAL EVOLUTION",
-        "title": "Phase 1 Baseline vs Phase 2 Hardened",
-        "subtitle": "Transitioning from a 3-Mac prototype to a resilient, secure 2-Mac production topology",
-        "cards": [
-            {
-                "title": "Phase 1: 3-Mac Prototype Baseline",
-                "accent": "amber",
-                "bullets": [
-                    "Mac 1 (Sanath): Dedicated Edge Nginx + Primary DNS (Single point of failure).",
-                    "Mac 2 (Aryan): Dedicated Backend A (:3001) listening on LAN interface.",
-                    "Mac 3 (Krishna): Dedicated Backend B (:3002) listening on LAN interface.",
-                    "Limitations: Unencrypted backend ports exposed to entire LAN; zero DNS or Edge redundancy."
-                ]
-            },
-            {
-                "title": "Phase 2: 2-Mac Hardened Production",
-                "accent": "green",
-                "bullets": [
-                    "Node 1 (Aryan - 10.7.11.108): Main Edge Proxy + Backend Cluster (A & B) + Backup DNS.",
-                    "Node 2 (Krishna - 10.7.9.214): Primary DNS + Standby Edge Proxy + Verification Client.",
-                    "Security: macOS PF firewall completely isolates backend ports 3001 & 3002 from LAN.",
-                    "HA: Dual DNS servers eliminate DNS SPOF; Standby Edge eliminates Proxy SPOF."
-                ]
-            },
-            {
-                "title": "Key Engineering Wins",
-                "accent": "cyan",
-                "bullets": [
-                    "Consolidated backend cluster on Node 1 reduces inter-node network latency to loopback (<0.1ms).",
-                    "Primary DNS on Node 2 ensures DNS remains operational even if Node 1 undergoes hard reboot.",
-                    "Zero code changes required on client application to support high-availability failovers."
-                ]
-            }
+        "title": "Phase 1 Baseline vs Phase 2 Hardened Production",
+        "subtitle": "Transitioning from a 3-Mac prototype to a resilient, zero-SPOF 2-Mac topology",
+        "bullets": [
+            "<strong>Phase 1 (3 Macs):</strong> Single edge proxy (Sanath) and unencrypted backends directly reachable across campus LAN.",
+            "<strong>Phase 2 Realignment:</strong> Consolidated 2-node architecture with hot-standby redundancy across DNS and Edge.",
+            "<strong>Node 1 (Aryan - 10.7.11.108):</strong> Reverse Proxy (Nginx), Upstream Backends A (:3001) & B (:3002), Backup DNS (:53).",
+            "<strong>Node 2 (Krishna - 10.7.9.214):</strong> Primary DNS (:53), Standby Edge (:443), macOS strict TLS test engine.",
+            "<strong>Security Win:</strong> macOS PF kernel firewall eliminates raw backend LAN attack surface entirely."
         ],
-        "footer": "Architectural Design Choice: Production-grade split-service topology with zero single-points-of-failure."
+        "image": os.path.join(EVIDENCE_P2, "01-phase2-lan-discovery-aryan.png"),
+        "caption": "Live Verification: Subnet discovery, interface verification (en0), and peer reachability (~6.8ms RTT)."
     },
     {
-        "slide_num": 4,
-        "category": "NETWORK TOPOLOGY & SERVICES",
-        "title": "Physical Network & Service Port Inventory",
-        "subtitle": "Physical LAN addressing, DNS binding, and upstream transport mapping",
-        "cards": [
-            {
-                "title": "Physical Network Topology",
-                "accent": "cyan",
-                "bullets": [
-                    "Physical Subnet: 10.7.0.0/19 (Campus Wi-Fi Infrastructure, en0 interface)",
-                    "Default Gateway: 10.7.0.1 | RTT between nodes: ~6.8 ms average (0.0% packet loss)",
-                    "Private Domain: app.team1.test (Authoritative resolution via dnsmasq instances)"
-                ]
-            },
-            {
-                "title": "Node 1 Service Mapping (10.7.11.108)",
-                "accent": "green",
-                "bullets": [
-                    "Port 443 TCP: Nginx Edge Main (TLS 1.3, HTTP/2, Strict SAN Certificate)",
-                    "Port 80 TCP: Nginx HTTP redirect (301 Permanent Redirect to HTTPS://)",
-                    "Port 53 UDP/TCP: Backup dnsmasq instance (Authoritative for app.team1.test)",
-                    "Ports 3001/3002 TCP: Backend Python services (127.0.0.1, PF firewall protected)"
-                ]
-            },
-            {
-                "title": "Node 2 Service Mapping (10.7.9.214)",
-                "accent": "amber",
-                "bullets": [
-                    "Port 53 UDP/TCP: Primary dnsmasq instance (Authoritative for app.team1.test, TTL 30s)",
-                    "Port 443 TCP: Standby Edge Nginx (Pre-configured dormant reverse proxy)",
-                    "Client Engine: macOS System Resolver, curl strict TLS test engine, tshark packet capture",
-                    "Wi-Fi DNS Config: 10.7.9.214 (Primary), 10.7.11.108 (Backup)"
-                ]
-            }
+        "num": 3,
+        "type": "split",
+        "category": "NETWORK INVENTORY",
+        "title": "Physical LAN Topology & Port Matrix",
+        "subtitle": "Complete service binding, transport layer mapping, and access policies",
+        "bullets": [
+            "<strong>Physical Subnet:</strong> 10.7.0.0/19 on interface en0 | Gateway: 10.7.0.1 | 0.0% packet loss.",
+            "<strong>Port 53 UDP/TCP:</strong> dnsmasq Primary (Node 2) & Backup (Node 1) with 30s TTL.",
+            "<strong>Port 80 TCP:</strong> Nginx HTTP redirect (301 Permanent Redirect to HTTPS).",
+            "<strong>Port 443 TCP:</strong> Nginx Edge Proxy terminating TLS 1.3 & HTTP/2 with custom SAN cert.",
+            "<strong>Ports 3001 & 3002 TCP:</strong> Python microservices bound to loopback (127.0.0.1) on Node 1.",
+            "<strong>Standby Edge:</strong> Pre-configured dormant Nginx on Node 2 (:443) for disaster migration."
         ],
-        "footer": "Port Matrix: Explicit separation of edge termination (443) and protected application backends (3001/3002)."
+        "image": os.path.join(EVIDENCE_P1, "01-lan-aryan-network-info-and-ping.jpg"),
+        "caption": "Physical Node 1 network interface binding (en0), IP assignment, and gateway reachability."
     },
     {
-        "slide_num": 5,
+        "num": 4,
+        "type": "flow",
         "category": "PROTOCOL JOURNEY",
-        "title": "End-to-End Request Journey (7 Layers)",
+        "title": "End-to-End Request Journey Across 7 Layers",
         "subtitle": "Tracing https://app.team1.test/api/status through the entire networking stack",
-        "cards": [
-            {
-                "title": "Phase A: Resolution & Handshake",
-                "accent": "cyan",
-                "bullets": [
-                    "1. DNS Lookup (L7/L4): Client queries Primary DNS 10.7.9.214:53 -> gets 10.7.11.108 (TTL 30s).",
-                    "2. TCP Handshake (L4): Client sends SYN to 10.7.11.108:443; receives SYN-ACK; sends ACK.",
-                    "3. TLS 1.3 Handshake (L4.5): ClientHello (ALPN h2) -> ServerHello, Cert, Handshake Finished (1-RTT)."
-                ]
-            },
-            {
-                "title": "Phase B: Proxying & Upstream Dispatch",
-                "accent": "green",
-                "bullets": [
-                    "4. HTTP/2 Framing (L7): Stream 1 multiplexed GET /api/status request sent over encrypted pipe.",
-                    "5. Edge Processing: Nginx checks SSL session, applies upstream round-robin selection.",
-                    "6. Loopback Dispatch: Nginx connects to 127.0.0.1:3001 or 3002 (macOS PF permits lo0, drops en0)."
-                ]
-            },
-            {
-                "title": "Phase C: Response & Caching",
-                "accent": "amber",
-                "bullets": [
-                    "7. Backend Response: Python service emits JSON payload + X-Backend: A/B header.",
-                    "8. Caching Engine: Nginx attaches ETag and Cache-Control headers; returns HTTP 200.",
-                    "9. Conditional Request: Client sends If-None-Match header; Nginx instantly returns HTTP 304 Not Modified."
-                ]
-            }
-        ],
-        "footer": "Full Stack Mastery: Every layer verified with Wireshark packet captures and strict curl output."
+        "steps": [
+            {"step": "1. DNS Resolution (L7/L4)", "desc": "Client queries Primary DNS 10.7.9.214:53 via UDP; receives 10.7.11.108 with 30-second TTL."},
+            {"step": "2. TCP 3-Way Handshake (L4)", "desc": "Client initiates SYN to 10.7.11.108:443; receives SYN-ACK; completes handshake with ACK."},
+            {"step": "3. TLS 1.3 Handshake (L4.5)", "desc": "ClientHello with ALPN 'h2' -> ServerHello, Certificate (SAN verified), Finished in 1-RTT."},
+            {"step": "4. HTTP/2 Multiplexing (L7)", "desc": "Binary stream 1 sends GET /api/status over single persistent multiplexed TCP socket."},
+            {"step": "5. Edge Upstream Routing", "desc": "Nginx applies round-robin; dispatches over loopback (lo0) to 127.0.0.1:3001 or 3002."},
+            {"step": "6. Kernel PF Enforcement", "desc": "macOS Packet Filter passes lo0 traffic; drops any raw LAN packets destined for 3001/3002."},
+            {"step": "7. Response & Caching", "desc": "Backend emits JSON + X-Backend: A/B; Nginx sets ETag; conditional request yields HTTP 304."}
+        ]
     },
     {
-        "slide_num": 6,
+        "num": 5,
+        "type": "split",
         "category": "PKI & SECURITY",
-        "title": "PKI, Strict TLS 1.3 & Certificate Trust",
-        "subtitle": "Complete cryptographic chain of trust without insecure bypass flags",
-        "cards": [
-            {
-                "title": "Custom Certificate Authority",
-                "accent": "cyan",
-                "bullets": [
-                    "Root CA: Team1 Root CA generated with 4096-bit RSA key and SHA-256.",
-                    "Signed Certificate: Server certificate valid for app.team1.test & team1.test.",
-                    "Subject Alternative Name (SAN): DNS:app.team1.test, DNS:team1.test, IP:10.7.11.108, IP:10.7.9.214.",
-                    "Key Security: Private keys stored with chmod 600; never committed to git repository."
-                ]
-            },
-            {
-                "title": "macOS System Keychain Integration",
-                "accent": "green",
-                "bullets": [
-                    "Root CA imported into /Library/Keychains/System.keychain on both MacBooks.",
-                    "Explicitly trusted using: security add-trusted-cert -d -r trustRoot -k ...",
-                    "Result: Native macOS trust engine validates the certificate chain identically to commercial CAs.",
-                    "Browser Support: Green padlock / secure lock badge in Safari and Chrome."
-                ]
-            },
-            {
-                "title": "Strict TLS 1.3 Verification",
-                "accent": "rose",
-                "bullets": [
-                    "Strict curl validation: curl -iv --http2 https://app.team1.test/api/status (NO -k / --insecure).",
-                    "Output confirms: SSL certificate verify ok | TLSv1.3 / TLS_AES_256_GCM_SHA384.",
-                    "ALPN Negotiation: Successfully negotiated ALPN protocol: h2 (HTTP/2 binary framing).",
-                    "Fail-Closed: Tampered or untrusted certificates instantly reject the handshake."
-                ]
-            }
+        "title": "PKI Architecture & Strict TLS 1.3 Handshake",
+        "subtitle": "Native macOS System Keychain trust without insecure bypass flags (-k)",
+        "bullets": [
+            "<strong>Custom Root CA:</strong> 'Team1 Root CA' generated with 4096-bit RSA private key and SHA-256.",
+            "<strong>Server Certificate:</strong> 2048-bit RSA with Subject Alternative Names (SAN: app.team1.test, team1.test, 10.7.11.108, 10.7.9.214).",
+            "<strong>System Keychain Integration:</strong> Installed via security add-trusted-cert into /Library/Keychains/System.keychain.",
+            "<strong>Strict TLS Verification:</strong> curl validates natively: SSL certificate verify ok | TLSv1.3 / TLS_AES_256_GCM_SHA384.",
+            "<strong>ALPN Negotiation:</strong> Automatically negotiates ALPN: h2 (HTTP/2 binary framing)."
         ],
-        "footer": "Evidence: curl_strict_tls_status.txt and terminal screenshot 02-phase2-strict-tls-status.png."
+        "image": os.path.join(EVIDENCE_P2, "02-phase2-strict-tls-status.png"),
+        "caption": "Strict curl validation proving TLS 1.3 handshake, SAN verification, and HTTP/2 200 OK."
     },
     {
-        "slide_num": 7,
+        "num": 6,
+        "type": "split",
+        "category": "REVERSE PROXY",
+        "title": "Layer 7 Load Balancing & Header Routing",
+        "subtitle": "Round-robin upstream distribution with backend identification headers",
+        "bullets": [
+            "<strong>Upstream Pool:</strong> Nginx balances traffic across 127.0.0.1:3001 (Backend A) and 127.0.0.1:3002 (Backend B).",
+            "<strong>Backend Identification:</strong> Every response injects header X-Backend: A or X-Backend: B for complete transparency.",
+            "<strong>Protocol Decoupling:</strong> Client communicates with Edge over TLS 1.3 / HTTP/2; Edge communicates with backends over HTTP/1.1.",
+            "<strong>Verification:</strong> Consecutive curl requests demonstrate strict alternation: Request 1 -> B, Request 2 -> A, Request 3 -> B, Request 4 -> A."
+        ],
+        "image": os.path.join(EVIDENCE_P2, "03-phase2-load-balancing-roundrobin.png"),
+        "caption": "Live curl loop showing requests alternating cleanly between Backend A and Backend B."
+    },
+    {
+        "num": 7,
+        "type": "split",
+        "category": "HTTP CACHING",
+        "title": "HTTP Caching Mechanics: ETag & 304 Not Modified",
+        "subtitle": "RFC 9110 conditional validation saving wireless LAN bandwidth",
+        "bullets": [
+            "<strong>Initial Request (HTTP 200):</strong> Client requests static resource; Nginx computes ETag (e.g. \"674...-100\") and Cache-Control.",
+            "<strong>Client Local Cache:</strong> Client stores representation and caches the ETag validator.",
+            "<strong>Conditional Request (HTTP 304):</strong> Client sends If-None-Match with stored ETag.",
+            "<strong>Zero-Body Response:</strong> Nginx confirms content has not changed; returns HTTP/2 304 Not Modified with Content-Length: 0.",
+            "<strong>Bandwidth Conservation:</strong> Eliminates duplicate payload transfer over wireless LAN."
+        ],
+        "image": os.path.join(EVIDENCE_P2, "04-phase2-caching-200-then-304.png"),
+        "caption": "Initial HTTP 200 response with ETag header followed by conditional HTTP 304 Not Modified response."
+    },
+    {
+        "num": 8,
+        "type": "split",
         "category": "EXTENSION A",
         "title": "Extension A: Redundant DNS Failover",
         "subtitle": "Automated resolver shift during primary DNS outage captured on packet level",
-        "cards": [
-            {
-                "title": "Dual Nameserver Architecture",
-                "accent": "cyan",
-                "bullets": [
-                    "Client Resolver: networksetup -setdnsservers Wi-Fi 10.7.9.214 10.7.11.108.",
-                    "Primary DNS: Node 2 (10.7.9.214:53) receives normal baseline queries.",
-                    "Backup DNS: Node 1 (10.7.11.108:53) running dnsmasq in hot standby.",
-                    "Both DNS instances serve identical authoritative zone records for app.team1.test."
-                ]
-            },
-            {
-                "title": "Fault Injection & Automated Shift",
-                "accent": "rose",
-                "bullets": [
-                    "Primary Failure: Primary dnsmasq process killed on Node 2.",
-                    "Resolver Behavior: macOS resolver queries 10.7.9.214, hits socket timeout, and fails over to 10.7.11.108.",
-                    "Verification: dig @10.7.11.108 app.team1.test +short returns 10.7.11.108 instantly.",
-                    "Application Impact: curl requests continue succeeding without errors or manual intervention."
-                ]
-            },
-            {
-                "title": "1.6 MB Wireshark Capture Proof",
-                "accent": "green",
-                "bullets": [
-                    "Packet Capture: dns-failover.pcapng recorded on en0 via tshark.",
-                    "Frames clearly prove UDP DNS queries migrating from 10.7.9.214 to 10.7.11.108.",
-                    "Restoration: Primary dnsmasq restarted; resolver restores primary affinity seamlessly.",
-                    "Evidence: ext_a_system_resolver_failover.txt & 08-phase2-dns-failover-backup-resolver.png."
-                ]
-            }
+        "bullets": [
+            "<strong>Dual DNS Config:</strong> macOS client configured with Primary (10.7.9.214) and Backup (10.7.11.108).",
+            "<strong>Fault Injection:</strong> Primary dnsmasq process terminated on Node 2.",
+            "<strong>Automated Failover:</strong> Client resolver detects socket timeout on Primary and routes queries to Backup (10.7.11.108).",
+            "<strong>Zero Interruption:</strong> curl https://app.team1.test continues resolving and serving requests seamlessly.",
+            "<strong>Packet Capture Proof:</strong> dns-failover.pcapng (1.6 MB) recorded via tshark captures the exact port 53 migration."
         ],
-        "footer": "Rubric Score: 15/15 Marks category (DNS resilience, TTL, and HA)."
+        "image": os.path.join(EVIDENCE_P2, "08-phase2-dns-failover-backup-resolver.png"),
+        "caption": "Terminal verification: Primary DNS stopped, client resolver automatically falling back to Backup DNS."
     },
     {
-        "slide_num": 8,
+        "num": 9,
+        "type": "split",
         "category": "EXTENSION B",
-        "title": "Extension B: Dynamic TTL & Controlled Cutover",
+        "title": "Extension B: Dynamic TTL & Controlled DNS Cutover",
         "subtitle": "Optimizing DNS cache expiration for rapid disaster recovery propagation",
-        "cards": [
-            {
-                "title": "The TTL Engineering Trade-off",
-                "accent": "amber",
-                "bullets": [
-                    "High TTL (e.g. 86400s): Minimizes DNS query volume; delays disaster cutover by hours/days.",
-                    "Low TTL (e.g. 5s): Instant cutover; introduces excessive query overhead on wireless LAN.",
-                    "Phase 2 Design Choice: 30-Second TTL (address=/app.team1.test/10.7.11.108 with 30s TTL).",
-                    "Provides sub-minute recovery time objective (RTO) with minimal query overhead."
-                ]
-            },
-            {
-                "title": "TTL Countdown & Cache Eviction",
-                "accent": "cyan",
-                "bullets": [
-                    "Observed behavior: Consecutive dig queries show TTL decrementing (30 -> 25 -> 12 -> 0).",
-                    "At TTL=0, resolver automatically refetches the record from dnsmasq.",
-                    "Negative Caching: Controlled via min-cache-ttl=0 to prevent caching NXDOMAIN failures.",
-                    "Local OS Cache: Managed via macOS mDNSResponder daemon."
-                ]
-            },
-            {
-                "title": "Instant Cutover Procedure",
-                "accent": "green",
-                "bullets": [
-                    "Cutover Mechanism: scripts/phase2/set-backup-dns-migration.sh updates DNS record.",
-                    "Cache Purge: dscacheutil -flushcache && sudo killall -HUP mDNSResponder.",
-                    "Verification: dig immediately resolves new target IP without waiting for cache expiration.",
-                    "Evidence: dns-cutover-30s-ttl.txt and 10-phase2-dns-cutover-and-restore.png."
-                ]
-            }
+        "bullets": [
+            "<strong>The TTL Trade-off:</strong> High TTL (e.g. 24h) minimizes DNS query overhead but causes slow failovers; low TTL (5s) floods wireless LAN.",
+            "<strong>Phase 2 Design Choice:</strong> 30-Second TTL provides sub-minute disaster cutover with minimal wireless overhead.",
+            "<strong>TTL Countdown:</strong> Consecutive dig queries display TTL counting down: 30s -> 25s -> 12s -> 0s.",
+            "<strong>Controlled Cutover:</strong> DNS record updated and client cache flushed via dscacheutil -flushcache && sudo killall -HUP mDNSResponder.",
+            "<strong>Negative Caching:</strong> min-cache-ttl=0 configured to prevent persistent caching of transient lookup errors."
         ],
-        "footer": "Theoretical Understanding: Evaluators test negative caching, resolver caching, and TTL trade-offs."
+        "image": os.path.join(EVIDENCE_P2, "10-phase2-dns-cutover-and-restore.png"),
+        "caption": "DNS cutover test: Verifying 30s TTL record update, cache eviction, and instant target restoration."
     },
     {
-        "slide_num": 9,
+        "num": 10,
+        "type": "split",
         "category": "EXTENSION C",
-        "title": "Extension C: Kernel-Level Service Isolation",
+        "title": "Extension C: Kernel-Level Service Isolation (macOS PF)",
         "subtitle": "Enforcing zero-trust perimeter around backend services using macOS PF",
-        "cards": [
-            {
-                "title": "The Security Vulnerability",
-                "accent": "rose",
-                "bullets": [
-                    "Problem: If backends listen on 0.0.0.0, any attacker on campus Wi-Fi can bypass Nginx.",
-                    "Bypass Risk: Attacker sends raw HTTP requests directly to ports 3001 and 3002.",
-                    "Impact: Bypasses TLS encryption, authentication, rate limiting, and HTTP caching.",
-                    "Requirement: Kernel-level packet filtering enforcing service isolation."
-                ]
-            },
-            {
-                "title": "macOS Packet Filter (PF) Architecture",
-                "accent": "cyan",
-                "bullets": [
-                    "PF Anchor: Dedicated anchor at com.apple/team1_isolation loaded via pfctl.",
-                    "Rule 1: block in quick on en0 proto tcp to any port {3001, 3002} (Drops LAN packets).",
-                    "Rule 2: pass in quick on lo0 proto tcp to any port {3001, 3002} (Permits local Nginx).",
-                    "Rule 3: pass in quick on en0 proto tcp to any port {80, 443} (Permits public edge)."
-                ]
-            },
-            {
-                "title": "Empirical Verification Proof",
-                "accent": "green",
-                "bullets": [
-                    "Remote Probe 1: nc -zv -w 2 10.7.11.108 3001 -> Connection timed out (100% blocked).",
-                    "Remote Probe 2: nc -zv -w 2 10.7.11.108 3002 -> Connection timed out (100% blocked).",
-                    "Remote Edge Probe: nc -zv -w 2 10.7.11.108 443 -> Succeeded! (Edge open).",
-                    "Evidence: nc_3001.txt, nc_3002.txt & 05-phase2-pf-firewall-service-isolation.png."
-                ]
-            }
+        "bullets": [
+            "<strong>The Vulnerability:</strong> If raw backends listen on LAN interfaces, any unauthorized user can bypass Nginx security.",
+            "<strong>Defense-in-Depth:</strong> Backends bound to 127.0.0.1 AND protected by macOS Packet Filter (pfctl) kernel anchor.",
+            "<strong>PF Anchor Rules (com.apple/team1_isolation):</strong>",
+            "  • block in quick on en0 proto tcp to any port {3001, 3002}",
+            "  • pass in quick on lo0 proto tcp to any port {3001, 3002}",
+            "  • pass in quick on en0 proto tcp to any port {80, 443}",
+            "<strong>Empirical Proof:</strong> nc to 10.7.11.108:3001 times out (dropped by PF), while port 443 connects instantly."
         ],
-        "footer": "Rubric Score: 10/10 Marks category (Service isolation and edge migration)."
+        "image": os.path.join(EVIDENCE_P2, "05-phase2-pf-firewall-service-isolation.png"),
+        "caption": "Firewall verification: nc probe to ports 3001/3002 times out while HTTPS port 443 succeeds."
     },
     {
-        "slide_num": 10,
+        "num": 11,
+        "type": "split",
         "category": "EXTENSION D",
         "title": "Extension D: Upstream HA & Passive Health Checks",
         "subtitle": "Transparent upstream failover and automatic recovery without dropping requests",
-        "cards": [
-            {
-                "title": "Nginx Upstream Configuration",
-                "accent": "cyan",
-                "bullets": [
-                    "upstream backend_cluster {",
-                    "    server 127.0.0.1:3001 max_fails=2 fail_timeout=10s;",
-                    "    server 127.0.0.1:3002 max_fails=2 fail_timeout=10s;",
-                    "}",
-                    "proxy_next_upstream error timeout http_502;"
-                ]
-            },
-            {
-                "title": "Zero-Drop Failure Handling",
-                "accent": "rose",
-                "bullets": [
-                    "Fault Injection: Backend A stopped (pkill -f 'backend.py --id A').",
-                    "Client Test: 5 consecutive curl requests sent to https://app.team1.test/api/status.",
-                    "Result: 100% of requests successfully served by Backend B (X-Backend: B).",
-                    "Zero Dropped Connections: Nginx intercepts upstream refusal and retries Backend B instantly."
-                ]
-            },
-            {
-                "title": "Automatic Recovery & Rejoin",
-                "accent": "green",
-                "bullets": [
-                    "Rejoining: Backend A restarted (python3 backend.py --id A --port 3001).",
-                    "Cool-down: After fail_timeout=10s expires, Nginx probes Backend A.",
-                    "Restoration: 6 consecutive requests alternate B -> A -> B -> A -> B -> A.",
-                    "Evidence: backend-failover-a-down.txt & backend-recovery-roundrobin.txt."
-                ]
-            }
+        "bullets": [
+            "<strong>Nginx HA Config:</strong> server 127.0.0.1:3001 max_fails=2 fail_timeout=10s; proxy_next_upstream error timeout http_502;",
+            "<strong>Fault Injection:</strong> Backend A killed (pkill -f 'backend.py --id A').",
+            "<strong>Zero Dropped Requests:</strong> 5 consecutive client requests served 100% by Backend B (X-Backend: B). Nginx catches TCP RST and fails over.",
+            "<strong>Automatic Recovery:</strong> Backend A restarted; after fail_timeout=10s expires, Nginx sends probe request and reintroduces A into round-robin.",
+            "<strong>Restored Balance:</strong> 6 subsequent requests alternate B -> A -> B -> A -> B -> A."
         ],
-        "footer": "High Availability: Demonstrates seamless upstream resilience with zero client-visible errors."
+        "image": os.path.join(EVIDENCE_P2, "06-phase2-backend-ha-failover-a-down.png"),
+        "caption": "Backend failover proof: 5 consecutive curls successfully served by Backend B when Backend A is down."
     },
     {
-        "slide_num": 11,
+        "num": 12,
+        "type": "split",
         "category": "EXTENSION E",
         "title": "Extension E: Standby Edge Disaster Recovery",
         "subtitle": "Cross-node edge proxy cutover with dynamic firewall migration",
-        "cards": [
-            {
-                "title": "Catastrophic Edge Failure Scenario",
-                "accent": "rose",
-                "bullets": [
-                    "Scenario: Node 1 edge proxy crashes, suffers kernel panic, or loses power.",
-                    "Challenge: Upstream backends are on Node 1; how to serve clients if Node 1 edge is down?",
-                    "Solution: Standby Edge Nginx deployed on Node 2 (10.7.9.214:443).",
-                    "Requires secure cross-node proxying without exposing backends to entire LAN."
-                ]
-            },
-            {
-                "title": "Dynamic Migration PF Rule",
-                "accent": "amber",
-                "bullets": [
-                    "Firewall Exception: Node 1 dynamically loads migration rule anchor com.apple/team1_migration:",
-                    "pass in quick on en0 proto tcp from 10.7.9.214 to any port {3001, 3002}.",
-                    "Pinpointed Access: ONLY Node 2 is permitted to reach ports 3001 & 3002.",
-                    "All other LAN hosts remain 100% blocked by base isolation anchor."
-                ]
-            },
-            {
-                "title": "Controlled Cutover & Verification",
-                "accent": "green",
-                "bullets": [
-                    "DNS Cutover: Primary DNS updated: address=/app.team1.test/10.7.9.214.",
-                    "Verification: curl -iv https://app.team1.test/api/status connects to 10.7.9.214:443.",
-                    "Standby Nginx reverse-proxies over LAN to 10.7.11.108:3001/3002 and returns 200 OK.",
-                    "Evidence: standby_edge_curl.txt, migration_nc_3001.txt & 09-phase2-standby-edge-migration.png."
-                ]
-            }
+        "bullets": [
+            "<strong>Disaster Scenario:</strong> Node 1 edge proxy crashes or suffers network partition.",
+            "<strong>Standby Edge:</strong> Pre-configured dormant Nginx instance on Node 2 (10.7.9.214:443).",
+            "<strong>Dynamic Firewall Migration Rule:</strong> Node 1 dynamically loads migration anchor com.apple/team1_migration:",
+            "  • pass in quick on en0 proto tcp from 10.7.9.214 to any port {3001, 3002}",
+            "<strong>Pinpointed Access:</strong> ONLY Node 2 can reach backends over LAN; all other network hosts remain blocked.",
+            "<strong>DNS Cutover:</strong> Primary DNS record updated to 10.7.9.214; client requests served by Standby Edge."
         ],
-        "footer": "Disaster Recovery: Enterprise-grade migration strategy demonstrating advanced network security."
+        "image": os.path.join(EVIDENCE_P2, "09-phase2-standby-edge-migration.png"),
+        "caption": "Edge migration verification: Standby Nginx on Node 2 proxying traffic to Node 1 backends."
     },
     {
-        "slide_num": 12,
+        "num": 13,
+        "type": "split",
         "category": "EXTENSION F",
-        "title": "Extension F: Layer-by-Layer Troubleshooting",
+        "title": "Extension F: Layer-by-Layer Troubleshooting Runbook",
         "subtitle": "60-second diagnostic runbook for faculty-injected network faults",
-        "cards": [
-            {
-                "title": "The 60-Second Diagnostic Pipeline",
-                "accent": "cyan",
-                "bullets": [
-                    "1. L3 Connectivity: ping -c 2 10.7.11.108 (Tests ARP, Wi-Fi link, IP routing).",
-                    "2. L7 DNS: dig @10.7.9.214 app.team1.test +short (Tests DNS port 53 & zone file).",
-                    "3. L4 Transport: nc -zv -w 2 10.7.11.108 443 (Tests Nginx listener & PF firewall).",
-                    "4. L4.5 TLS: openssl s_client -connect 10.7.11.108:443 (Tests cert validity & SAN).",
-                    "5. L7 HTTP: curl -iv --http2 https://app.team1.test/api/status (Tests 200 OK & backends)."
-                ]
-            },
-            {
-                "title": "Fault Matrix & Rapid Remediation",
-                "accent": "rose",
-                "bullets": [
-                    "Fault: DNS returns wrong IP -> Check dnsmasq.conf, restart dnsmasq, flush client cache.",
-                    "Fault: Port 443 connection refused -> Check sudo nginx -t, verify nginx worker process.",
-                    "Fault: HTTP 502 Bad Gateway -> Backend process dead; restart python3 backend.py.",
-                    "Fault: curl certificate verify failed -> Re-add Root CA to macOS keychain with trustRoot."
-                ]
-            },
-            {
-                "title": "Automated Verification Suite",
-                "accent": "green",
-                "bullets": [
-                    "Single Command Test: bash scripts/phase2/test-all.sh runs all 12 validation tests.",
-                    "Instant Health Check: bash scripts/phase2/check-phase2-status.sh prints live process table.",
-                    "Full Rollback Script: bash scripts/phase2/rollback.sh restores network to pristine DHCP state.",
-                    "Guaranteed recovery from any faculty fault in under 60 seconds."
-                ]
-            }
+        "bullets": [
+            "<strong>L1/L3 Connectivity:</strong> ping -c 2 <target_ip> (Tests ARP resolution, Wi-Fi link, IP routing).",
+            "<strong>L7 DNS Resolution:</strong> dig @<dns_ip> app.team1.test +short (Tests port 53 listener & zone records).",
+            "<strong>L4 Transport / Firewall:</strong> nc -zv -w 2 <target_ip> 443 (Distinguishes between port closed vs PF drop).",
+            "<strong>L4.5 TLS Cryptography:</strong> openssl s_client -connect <target_ip>:443 (Tests cert validity & SAN match).",
+            "<strong>L7 Application:</strong> curl -iv --http2 https://app.team1.test/api/status (Tests 200 OK & backend headers).",
+            "<strong>Rapid Remediation:</strong> bash scripts/phase2/test-all.sh runs full 12-test suite in 15 seconds."
         ],
-        "footer": "Rubric Score: 10/10 Marks category (Troubleshooting challenge defense)."
+        "image": os.path.join(EVIDENCE_P1, "18-break4-wrong-dns-server.jpg"),
+        "caption": "Fault isolation evidence: Diagnosing DNS failure mode and verifying negative query resolution."
     },
     {
-        "slide_num": 13,
+        "num": 14,
+        "type": "split",
         "category": "WIRESHARK ANALYSIS",
         "title": "Wireshark Packet Analysis & Protocol Evidence",
         "subtitle": "Deep-dive frame inspection across DNS, TCP 3-way handshake, TLS 1.3 & HTTP/2",
-        "cards": [
-            {
-                "title": "DNS & TCP Handshake Frames",
-                "accent": "cyan",
-                "bullets": [
-                    "DNS Query/Response: UDP port 53 frame showing Standard query 0x1a2b A app.team1.test.",
-                    "DNS Answer: Returns 10.7.11.108 with Time to live: 30 seconds.",
-                    "TCP 3-Way Handshake: Syn (seq=0) -> Syn-Ack (seq=0, ack=1) -> Ack (seq=1, ack=1).",
-                    "TCP Options: MSS 1460, Window Scale 6, SACK Permitted."
-                ]
-            },
-            {
-                "title": "TLS 1.3 & HTTP/2 Protocol Frames",
-                "accent": "green",
-                "bullets": [
-                    "Client Hello: Cipher Suites including TLS_AES_256_GCM_SHA384, ALPN extension: h2.",
-                    "Server Hello: TLS 1.3 selected, Key Share exchange, Encrypted Extensions.",
-                    "Certificate Frame: X.509 Certificate with SAN: app.team1.test, Issuer: Team1 Root CA.",
-                    "HTTP/2 Multiplexing: Stream ID: 1, HEADERS frame + DATA frame (JSON payload)."
-                ]
-            },
-            {
-                "title": "Packet Capture Artifacts in Repo",
-                "accent": "amber",
-                "bullets": [
-                    "phase1-flow.pcapng (706 KB): Baseline DNS, TCP, TLS, and HTTP transactions.",
-                    "dns-failover.pcapng (1.6 MB): Live continuous capture proving automated DNS failover.",
-                    "Wireshark Screenshots: 10 individual JPEG captures in evidence/ depicting every handshake.",
-                    "Terminal Captures: 10 high-resolution PNG terminal screenshots in evidence/phase2/."
-                ]
-            }
+        "bullets": [
+            "<strong>DNS Query/Response:</strong> UDP port 53 frame showing Standard query A app.team1.test, Answer with TTL: 30s.",
+            "<strong>TCP 3-Way Handshake:</strong> SYN (seq=0) -> SYN-ACK (seq=0, ack=1) -> ACK (seq=1, ack=1) with MSS 1460.",
+            "<strong>TLS 1.3 Handshake:</strong> Client Hello with ALPN h2, Server Hello with key share exchange (1-RTT).",
+            "<strong>HTTP/2 Multiplexing:</strong> Binary HEADERS and DATA frames multiplexed over stream 1.",
+            "<strong>Capture Artifacts in Repo:</strong> phase1-flow.pcapng (706 KB) + dns-failover.pcapng (1.6 MB continuous failover capture)."
         ],
-        "footer": "Course Compliance: Section 8 Step 6 Wireshark requirement fully documented and proven."
+        "image": os.path.join(EVIDENCE_P1, "10-wireshark-tcp-3way-handshake.jpg"),
+        "caption": "Wireshark capture: Frame-by-frame analysis of the TCP 3-way handshake to port 443."
     },
     {
-        "slide_num": 14,
+        "num": 15,
+        "type": "cards",
         "category": "PRODUCTION HARDENING",
         "title": "Production Hardening & Architectural Trade-offs",
         "subtitle": "Critique of design decisions, scaling bottlenecks, and real-world datacenter practices",
@@ -556,10 +281,10 @@ SLIDES_DATA = [
                 "title": "Health Checking Mechanisms",
                 "accent": "cyan",
                 "bullets": [
-                    "Our Architecture: Nginx Open Source passive health checks (max_fails=2, fail_timeout=10s).",
-                    "Trade-off: Requires 1-2 failed client requests before an upstream server is marked down.",
-                    "Enterprise Hardening: Nginx Plus / Envoy active synthetic health probes (health_check uri=/api/health).",
-                    "Removes failed backends proactively before any client request experiences latency."
+                    "Our Architecture: Nginx OSS passive health checks (max_fails=2, fail_timeout=10s).",
+                    "Trade-off: Requires 1-2 failed client requests before an upstream is marked down.",
+                    "Enterprise Production: Envoy / Nginx Plus active synthetic probes (health_check uri=/api/health).",
+                    "Proactively removes failed servers before client requests ever experience latency."
                 ]
             },
             {
@@ -567,9 +292,9 @@ SLIDES_DATA = [
                 "accent": "amber",
                 "bullets": [
                     "Our Architecture: DNS-based failover with 30s TTL and dual resolver entries.",
-                    "Trade-off: Reliant on client stub resolver behavior and local operating system caching.",
-                    "Enterprise Hardening: BGP Anycast routing where both nodes announce identical virtual IP (VIP).",
-                    "Sub-second failover at Layer 3/4 via ECMP router re-convergence with zero DNS caching delay."
+                    "Trade-off: Dependent on client resolver implementation and OS cache flushing.",
+                    "Enterprise Production: BGP Anycast routing where both nodes announce identical Virtual IP (VIP).",
+                    "Sub-second failover at Layer 3/4 via ECMP router re-convergence with zero DNS delay."
                 ]
             },
             {
@@ -577,120 +302,69 @@ SLIDES_DATA = [
                 "accent": "green",
                 "bullets": [
                     "Our Architecture: macOS PF firewall + loopback binding for upstream isolation.",
-                    "Enterprise Hardening: Mutual TLS (mTLS) with client certificates between Edge and Backends.",
-                    "Cryptographic identity verification ensures only authorized reverse proxies can decrypt backend traffic.",
-                    "Automated Certificate Lifecycle: ACME protocol / Let's Encrypt / HashiCorp Vault."
+                    "Enterprise Production: Mutual TLS (mTLS) with client certificates between Edge and Backends.",
+                    "Cryptographic identity guarantees only authenticated proxies can decrypt backend traffic.",
+                    "Automated Certificate Lifecycle: ACME protocol / HashiCorp Vault automated rotation."
                 ]
             }
-        ],
-        "footer": "Viva Excellence: Demonstrating high-level architectural maturity and industry best practices."
+        ]
     },
     {
-        "slide_num": 15,
+        "num": 16,
+        "type": "flow",
         "category": "LIVE DEMO PLAN",
-        "title": "Official 11-Step Evaluation Cheat Sheet",
-        "subtitle": "Step-by-step cue card strictly matching Section 8 of the course rubric",
-        "cards": [
-            {
-                "title": "Steps 1 - 4: Discovery, DNS & TLS",
-                "accent": "cyan",
-                "bullets": [
-                    "Step 1: Display network topology diagram and IP/service inventory table.",
-                    "Step 2: Confirm LAN reachability: ping -c 2 10.7.11.108 and ping -c 2 10.7.9.214.",
-                    "Step 3: Resolve private domain: dig @10.7.9.214 app.team1.test +short (Returns 10.7.11.108).",
-                    "Step 4: Strict HTTPS request: curl -iv --http2 https://app.team1.test/api/status (Strict TLS 1.3)."
-                ]
-            },
-            {
-                "title": "Steps 5 - 8: Load Balancing, Wireshark & HA",
-                "accent": "green",
-                "bullets": [
-                    "Step 5: Run 4 consecutive curls: demonstrate X-Backend alternating between A and B.",
-                    "Step 6: Open Wireshark / show evidence: DNS query, TCP 3-way, TLS 1.3 handshake frames.",
-                    "Step 7: HTTP caching: Initial 200 (ETag) -> subsequent conditional request returns 304 Not Modified.",
-                    "Step 8: Stop Backend A: run 5 curls -> 100% served by Backend B; restart A -> auto-rejoins!"
-                ]
-            },
-            {
-                "title": "Steps 9 - 11: Failover, Diagnostics & Viva",
-                "accent": "rose",
-                "bullets": [
-                    "Step 9: Stop Primary DNS: show client shifts to Backup DNS 10.7.11.108 (pcap capture).",
-                    "Step 10: Faculty Fault Injection: execute systematic 60s runbook (L3 -> L7 -> L4 -> L4.5).",
-                    "Step 11: Individual Viva: Answer technical defense questions on DNS, TLS, PF, and Nginx."
-                ]
-            }
-        ],
-        "footer": "Evaluation Roadmap: Guarantees full coverage of all 11 required evaluation steps."
+        "title": "Official 11-Step Evaluation Live Demo Plan",
+        "subtitle": "Step-by-step checklist matching Section 8 of the course rubric",
+        "steps": [
+            {"step": "Step 1: Network Topology", "desc": "Show Slide 3 and cat docs/PHASE2_ARCHITECTURE.md displaying IPs, ports, and interface mappings."},
+            {"step": "Step 2: Private LAN Reachability", "desc": "Execute ping -c 2 10.7.11.108 from Krishna's Mac confirming 0.0% packet loss and low latency."},
+            {"step": "Step 3: Private DNS Resolution", "desc": "Run dig @10.7.9.214 app.team1.test +short returning 10.7.11.108 with 30-second TTL."},
+            {"step": "Step 4: Strict HTTPS Verification", "desc": "Run curl -iv --http2 https://app.team1.test/api/status without -k (Strict TLS 1.3 verification)."},
+            {"step": "Step 5: Upstream Load Balancing", "desc": "Run 4 consecutive curl requests demonstrating alternating X-Backend: A and X-Backend: B headers."},
+            {"step": "Step 6: Wireshark Packet Proof", "desc": "Show Wireshark frames for DNS query, TCP 3-way handshake, TLS 1.3 handshake, and HTTP/2 framing."},
+            {"step": "Step 7: HTTP Caching Validation", "desc": "Execute test-cache.sh showing initial HTTP 200 with ETag followed by conditional HTTP 304 Not Modified."},
+            {"step": "Step 8: Backend High Availability", "desc": "Stop Backend A; run 5 curls (100% served by B with 0 errors); restart A (rejoins round-robin)."},
+            {"step": "Step 9: Redundant DNS Failover", "desc": "Stop Primary DNS; show client resolver fails over to Backup DNS 10.7.11.108 (dns-failover.pcapng)."},
+            {"step": "Step 10: Faculty Fault Diagnosis", "desc": "Execute systematic 60-second diagnostic runbook: L1 -> L7 DNS -> L4 Port -> L4.5 TLS -> L7 HTTP."},
+            {"step": "Step 11: Individual Viva Defense", "desc": "Defend design decisions, PF kernel isolation, TLS 1.3 1-RTT, and proxy_next_upstream mechanics."}
+        ]
     },
     {
-        "slide_num": 16,
+        "num": 17,
+        "type": "cards",
         "category": "VIVA DEFENSE GUIDE",
-        "title": "Viva Defense: High-Scoring Technical Answers",
-        "subtitle": "Model answers to critical examiner questions on networking protocols and design",
+        "title": "Viva Defense: High-Scoring Technical Model Answers",
+        "subtitle": "Precision technical rationale for top examiner questions",
         "cards": [
             {
                 "title": "Q1: Defense-in-Depth for Backends",
                 "accent": "cyan",
                 "bullets": [
-                    "Question: Why bind backends to 127.0.0.1 AND enforce macOS PF firewall rules?",
-                    "Answer: Defense-in-depth principle. If a junior developer accidentally binds a backend to 0.0.0.0 or if a process binds to a public socket, the kernel-level PF packet filter guarantees packets arriving on en0 are dropped before reaching the application layer."
+                    "Q: Why bind backends to 127.0.0.1 AND use PF firewall?",
+                    "A: Defense-in-depth principle. If a backend is accidentally bound to 0.0.0.0 or if an unauthorized process binds to a public port, the kernel PF packet filter guarantees incoming packets on en0 are silently dropped before reaching the application layer."
                 ]
             },
             {
                 "title": "Q2: macOS DNS Resolver Failover",
                 "accent": "amber",
                 "bullets": [
-                    "Question: How does macOS mDNSResponder handle primary vs backup DNS servers?",
-                    "Answer: macOS queries the first configured nameserver (10.7.9.214). Upon query timeout or ICMP Port Unreachable, the resolver marks the primary as degraded and falls back to the secondary (10.7.11.108), caching the failover state until the primary recovers."
+                    "Q: How does macOS resolver handle dual DNS entries?",
+                    "A: mDNSResponder maintains affinity to the first nameserver (10.7.9.214). Upon query timeout, the resolver marks the primary as degraded, falls back to the secondary (10.7.11.108), and caches that failover state until the primary recovers."
                 ]
             },
             {
-                "title": "Q3: TLS 1.3 vs TLS 1.2 Latency",
+                "title": "Q3: TLS 1.3 vs TLS 1.2 Handshake Latency",
                 "accent": "green",
                 "bullets": [
-                    "Question: Why is TLS 1.3 fundamentally faster than TLS 1.2 during session establishment?",
-                    "Answer: TLS 1.2 requires 2 full round-trips (2-RTT) for negotiation and key exchange. TLS 1.3 completes in 1-RTT because the client speculatively sends its Diffie-Hellman key share directly inside the ClientHello message."
+                    "Q: Why is TLS 1.3 faster than TLS 1.2 during connection setup?",
+                    "A: TLS 1.2 requires 2 full round-trips (2-RTT) for negotiation and key exchange. TLS 1.3 completes in 1-RTT because the client speculatively sends its Diffie-Hellman key share inside the ClientHello message."
                 ]
             }
-        ],
-        "footer": "Viva Defense Part 1: Deep technical understanding directly addresses Section 10 (10 marks)."
+        ]
     },
     {
-        "slide_num": 17,
-        "category": "VIVA DEFENSE GUIDE",
-        "title": "Viva Defense: Caching, HA & Edge Migration",
-        "subtitle": "Technical rationale for proxy_next_upstream, HTTP 304, and migration security",
-        "cards": [
-            {
-                "title": "Q4: HTTP 304 Not Modified Semantics",
-                "accent": "cyan",
-                "bullets": [
-                    "Question: Why does an HTTP 304 response have a Content-Length of 0 and no response body?",
-                    "Answer: RFC 9110 specifies that HTTP 304 is a conditional validation response. Because the client provided If-None-Match with a matching ETag, the cached representation in client memory is identical. Sending a body would waste network bandwidth."
-                ]
-            },
-            {
-                "title": "Q5: Nginx proxy_next_upstream Mechanics",
-                "accent": "rose",
-                "bullets": [
-                    "Question: What happens under the hood when Backend A is killed during an active request?",
-                    "Answer: The TCP SYN to 127.0.0.1:3001 immediately receives an RST packet. Nginx's proxy_next_upstream error timeout http_502 directive intercepts this kernel error before emitting a 502 to the client, transparently dispatching the request to Backend B."
-                ]
-            },
-            {
-                "title": "Q6: Migration Anchor Security",
-                "accent": "amber",
-                "bullets": [
-                    "Question: In Extension E, why use a dedicated migration anchor rather than disabling PF?",
-                    "Answer: Disabling PF exposes ports 3001 and 3002 to all hosts on the 10.7.0.0/19 subnet. The migration anchor pinpoints permission strictly to Node 2 (from 10.7.9.214), maintaining complete isolation against all other network devices."
-                ]
-            }
-        ],
-        "footer": "Viva Defense Part 2: Demonstrating precision in networking and protocol engineering."
-    },
-    {
-        "slide_num": 18,
+        "num": 18,
+        "type": "cards",
         "category": "DELIVERABLES & CONCLUSION",
         "title": "Submission Manifest & Team Sign-off",
         "subtitle": "Complete verification bundle, open-source repository, and live services status",
@@ -699,21 +373,21 @@ SLIDES_DATA = [
                 "title": "Deliverables Manifest",
                 "accent": "cyan",
                 "bullets": [
-                    "1. Architecture Document: docs/PHASE2_ARCHITECTURE.md & .html",
+                    "1. Architecture Doc: docs/PHASE2_ARCHITECTURE.md & .html",
                     "2. Final Report: docs/PHASE2_FINAL_REPORT.md & .html",
                     "3. Presentation Decks: Phase2_Final_Presentation_Team1.pptx & .pdf",
                     "4. Configuration Bundle: config/phase2/ (6 production configs)",
-                    "5. Source & Scripts: scripts/phase2/ (20 verified automation scripts)"
+                    "5. Source & Scripts: scripts/phase2/ (20 automation scripts)"
                 ]
             },
             {
-                "title": "Evidence & Repository",
+                "title": "Evidence & GitHub Repository",
                 "accent": "green",
                 "bullets": [
                     "6. Evidence Folder: evidence/phase2/ (10 PNG screenshots, 1.6MB PCAP, raw logs)",
-                    "7. Submission Archive: ~/Desktop/Phase2_Submission_Team1.zip (Complete bundle)",
+                    "7. Submission Archive: ~/Desktop/Phase2_Submission_Team1.zip (1.6 MB bundle)",
                     "8. GitHub Repository: https://github.com/sanath-2512/Computer_Network",
-                    "Full commit history with granular, reproducible technical milestones."
+                    "Full commit history with reproducible verification logs."
                 ]
             },
             {
@@ -726,19 +400,18 @@ SLIDES_DATA = [
                     "Team 1: Aryan Bhargava & Krishna Pramod Dubale."
                 ]
             }
-        ],
-        "footer": "Team 1 — Phase 2 Complete. Prepared for Full Marks (50/50) Evaluation."
+        ]
     }
 ]
 
 def build_pptx():
-    print("Building PowerPoint Presentation (.pptx)...")
+    print("Building Widescreen PowerPoint Presentation (.pptx)...")
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
     blank_layout = prs.slide_layouts[6]
 
-    for data in SLIDES_DATA:
+    for data in SLIDES:
         slide = prs.slides.add_slide(blank_layout)
 
         # 1. Dark Background
@@ -747,507 +420,619 @@ def build_pptx():
         bg.fill.fore_color.rgb = C_BG
         bg.line.color.rgb = C_BG
 
-        # 2. Header Category Badge / Top Line
-        top_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.4), Inches(11.733), Inches(0.04))
+        # 2. Header
+        top_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(0.35), Inches(11.733), Inches(0.04))
         top_bar.fill.solid()
         top_bar.fill.fore_color.rgb = C_CYAN
         top_bar.line.fill.background()
 
-        # Category Text
-        cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.48), Inches(9.0), Inches(0.35))
+        cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.42), Inches(11.0), Inches(0.3))
         tf_cat = cat_box.text_frame
-        tf_cat.word_wrap = True
         p_cat = tf_cat.paragraphs[0]
-        p_cat.text = f"TEAM 1 | {data['category']} | SLIDE {data['slide_num']} OF {len(SLIDES_DATA)}"
+        p_cat.text = f"TEAM 1 | {data['category']} | SLIDE {data['num']} OF {len(SLIDES)}"
         p_cat.font.name = FONT_HEAD
         p_cat.font.size = Pt(10)
         p_cat.font.bold = True
         p_cat.font.color.rgb = C_CYAN
 
-        # Title Text
-        title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.75), Inches(11.733), Inches(0.65))
+        title_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.7), Inches(11.733), Inches(0.6))
         tf_title = title_box.text_frame
-        tf_title.word_wrap = True
         p_title = tf_title.paragraphs[0]
         p_title.text = data["title"]
         p_title.font.name = FONT_HEAD
-        p_title.font.size = Pt(24)
+        p_title.font.size = Pt(22)
         p_title.font.bold = True
         p_title.font.color.rgb = C_PRIMARY
 
-        # Subtitle Text
-        sub_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.35), Inches(11.733), Inches(0.45))
+        sub_box = slide.shapes.add_textbox(Inches(0.8), Inches(1.25), Inches(11.733), Inches(0.4))
         tf_sub = sub_box.text_frame
-        tf_sub.word_wrap = True
         p_sub = tf_sub.paragraphs[0]
         p_sub.text = data["subtitle"]
         p_sub.font.name = FONT_BODY
-        p_sub.font.size = Pt(13)
+        p_sub.font.size = Pt(12)
         p_sub.font.color.rgb = C_MUTED
 
-        # 3. Render 3 Content Cards Side-by-Side
-        cards = data["cards"]
-        num_cards = len(cards)
-        card_w = Inches(3.72)
-        card_h = Inches(4.75)
-        gap = Inches(0.28)
-        left_margin = Inches(0.8)
-        top_pos = Inches(1.85)
+        # 3. Slide Body Layouts
+        stype = data.get("type")
 
-        for i, card in enumerate(cards):
-            c_left = left_margin + i * (card_w + gap)
-            
-            # Card Background
-            c_rect = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, c_left, top_pos, card_w, card_h)
-            c_rect.fill.solid()
-            c_rect.fill.fore_color.rgb = C_CARD
-            c_rect.line.color.rgb = C_CARD_BORDER
-            c_rect.line.width = Pt(1.5)
+        if stype == "title":
+            # Title Hero Layout
+            hero_box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.9), Inches(11.733), Inches(4.7))
+            hero_box.fill.solid()
+            hero_box.fill.fore_color.rgb = C_CARD
+            hero_box.line.color.rgb = C_BORDER
+            hero_box.line.width = Pt(1.5)
 
-            # Accent Indicator Line inside Card
-            accent_color = C_CYAN
-            if card.get("accent") == "green":
-                accent_color = C_GREEN
-            elif card.get("accent") == "rose":
-                accent_color = C_ROSE
-            elif card.get("accent") == "amber":
-                accent_color = C_AMBER
+            # Authors Cards
+            card_w = Inches(5.5)
+            card_h = Inches(1.8)
+            for idx, a in enumerate(data["authors"]):
+                ax = Inches(1.1 + idx * 5.8)
+                ay = Inches(2.3)
+                abox = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, ax, ay, card_w, card_h)
+                abox.fill.solid()
+                abox.fill.fore_color.rgb = RGBColor(20, 29, 47)
+                abox.line.color.rgb = C_CYAN if idx == 0 else C_AMBER
+                abox.line.width = Pt(1.5)
 
-            acc_line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, c_left + Inches(0.25), top_pos + Inches(0.2), Inches(0.4), Inches(0.06))
-            acc_line.fill.solid()
-            acc_line.fill.fore_color.rgb = accent_color
-            acc_line.line.fill.background()
+                atf = abox.text_frame
+                atf.word_wrap = True
+                p1 = atf.paragraphs[0]
+                p1.text = f"{a['name']} ({a['ip']})"
+                p1.font.name = FONT_HEAD
+                p1.font.size = Pt(15)
+                p1.font.bold = True
+                p1.font.color.rgb = C_CYAN if idx == 0 else C_AMBER
+                p1.space_after = Pt(6)
 
-            # Card Title
-            ctitle_box = slide.shapes.add_textbox(c_left + Inches(0.2), top_pos + Inches(0.35), card_w - Inches(0.4), Inches(0.55))
-            tf_ctitle = ctitle_box.text_frame
-            tf_ctitle.word_wrap = True
-            p_ct = tf_ctitle.paragraphs[0]
-            p_ct.text = card["title"]
-            p_ct.font.name = FONT_HEAD
-            p_ct.font.size = Pt(14)
-            p_ct.font.bold = True
-            p_ct.font.color.rgb = accent_color
+                p2 = atf.add_paragraph()
+                p2.text = a["role"]
+                p2.font.name = FONT_BODY
+                p2.font.size = Pt(11)
+                p2.font.color.rgb = C_PRIMARY
 
-            # Card Bullets
-            bullet_box = slide.shapes.add_textbox(c_left + Inches(0.2), top_pos + Inches(0.95), card_w - Inches(0.4), card_h - Inches(1.1))
-            tf_b = bullet_box.text_frame
-            tf_b.word_wrap = True
+            # Motto Box
+            mbox = slide.shapes.add_textbox(Inches(1.1), Inches(4.4), Inches(11.1), Inches(0.8))
+            mtf = mbox.text_frame
+            mtf.word_wrap = True
+            mp = mtf.paragraphs[0]
+            mp.text = data["motto"]
+            mp.font.name = FONT_HEAD
+            mp.font.size = Pt(16)
+            mp.font.bold = True
+            mp.font.color.rgb = C_GREEN
+            mp.space_after = Pt(8)
 
-            for j, b_text in enumerate(card["bullets"]):
-                p_b = tf_b.paragraphs[0] if j == 0 else tf_b.add_paragraph()
-                p_b.text = f"•  {b_text}"
+            mp2 = mtf.add_paragraph()
+            mp2.text = data["meta"]
+            mp2.font.name = FONT_BODY
+            mp2.font.size = Pt(12)
+            mp2.font.color.rgb = C_MUTED
+
+        elif stype == "split":
+            # Left: Technical Content (width = 6.4 inches)
+            left_rect = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.8), Inches(6.4), Inches(4.85))
+            left_rect.fill.solid()
+            left_rect.fill.fore_color.rgb = C_CARD
+            left_rect.line.color.rgb = C_BORDER
+            left_rect.line.width = Pt(1.5)
+
+            ltf = left_rect.text_frame
+            ltf.word_wrap = True
+            for b_idx, b_text in enumerate(data["bullets"]):
+                clean_text = b_text.replace("<strong>", "").replace("</strong>", "")
+                p_b = ltf.paragraphs[0] if b_idx == 0 else ltf.add_paragraph()
+                p_b.text = f"•  {clean_text}"
                 p_b.font.name = FONT_BODY
-                p_b.font.size = Pt(10.5)
+                p_b.font.size = Pt(11)
                 p_b.font.color.rgb = C_PRIMARY
                 p_b.space_after = Pt(8)
 
+            # Right: Image & Caption (width = 5.0 inches)
+            img_path = data.get("image")
+            if img_path and os.path.exists(img_path):
+                try:
+                    slide.shapes.add_picture(img_path, Inches(7.5), Inches(1.8), width=Inches(5.0))
+                except Exception as e:
+                    print(f"Warning: could not add picture {img_path}: {e}")
+
+            cap_box = slide.shapes.add_textbox(Inches(7.5), Inches(5.6), Inches(5.0), Inches(1.0))
+            ctf = cap_box.text_frame
+            ctf.word_wrap = True
+            cp = ctf.paragraphs[0]
+            cp.text = data.get("caption", "Verification Evidence")
+            cp.font.name = FONT_BODY
+            cp.font.size = Pt(9.5)
+            cp.font.color.rgb = C_MUTED
+
+        elif stype == "flow":
+            # Flow Layout
+            flow_rect = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.8), Inches(11.733), Inches(4.85))
+            flow_rect.fill.solid()
+            flow_rect.fill.fore_color.rgb = C_CARD
+            flow_rect.line.color.rgb = C_BORDER
+            flow_rect.line.width = Pt(1.5)
+
+            ftf = flow_rect.text_frame
+            ftf.word_wrap = True
+            steps = data.get("steps", [])
+            for s_idx, st in enumerate(steps):
+                p_s = ftf.paragraphs[0] if s_idx == 0 else ftf.add_paragraph()
+                p_s.text = f"{st['step']}: {st['desc']}"
+                p_s.font.name = FONT_BODY
+                p_s.font.size = Pt(10)
+                p_s.font.color.rgb = C_PRIMARY
+                p_s.space_after = Pt(6)
+
+        elif stype == "cards":
+            # 3 Cards Layout
+            cards = data.get("cards", [])
+            card_w = Inches(3.72)
+            card_h = Inches(4.85)
+            gap = Inches(0.28)
+            for i, card in enumerate(cards):
+                cx = Inches(0.8 + i * (3.72 + 0.28))
+                crect = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cx, Inches(1.8), card_w, card_h)
+                crect.fill.solid()
+                crect.fill.fore_color.rgb = C_CARD
+                crect.line.color.rgb = C_BORDER
+                crect.line.width = Pt(1.5)
+
+                ctf = crect.text_frame
+                ctf.word_wrap = True
+                p_head = ctf.paragraphs[0]
+                p_head.text = card["title"]
+                p_head.font.name = FONT_HEAD
+                p_head.font.size = Pt(13)
+                p_head.font.bold = True
+                p_head.font.color.rgb = C_CYAN if card.get("accent") == "cyan" else (C_AMBER if card.get("accent") == "amber" else C_GREEN)
+                p_head.space_after = Pt(8)
+
+                for b_text in card["bullets"]:
+                    p_b = ctf.add_paragraph()
+                    p_b.text = f"•  {b_text}"
+                    p_b.font.name = FONT_BODY
+                    p_b.font.size = Pt(10)
+                    p_b.font.color.rgb = C_PRIMARY
+                    p_b.space_after = Pt(6)
+
         # 4. Slide Footer
-        footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.8), Inches(11.733), Inches(0.35))
-        tf_foot = footer_box.text_frame
-        tf_foot.word_wrap = True
-        p_foot = tf_foot.paragraphs[0]
-        p_foot.text = data["footer"]
-        p_foot.font.name = FONT_BODY
-        p_foot.font.size = Pt(9.5)
-        p_foot.font.color.rgb = C_MUTED
+        foot_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.85), Inches(11.733), Inches(0.3))
+        ftf = foot_box.text_frame
+        p_ft = ftf.paragraphs[0]
+        p_ft.text = f"Team 1 | Aryan Bhargava & Krishna Pramod Dubale | Slide {data['num']} of {len(SLIDES)}"
+        p_ft.font.name = FONT_BODY
+        p_ft.font.size = Pt(9)
+        p_ft.font.color.rgb = C_MUTED
 
     prs.save(PPTX_PATH)
-    print(f"PowerPoint successfully created: {PPTX_PATH}")
+    print(f"PowerPoint created: {PPTX_PATH}")
 
 
 def build_html():
-    print("Building Interactive HTML Slide Presentation (.html)...")
+    print("Building Interactive & Printable Widescreen HTML Presentation (.html)...")
     
     slides_html_parts = []
     
-    for i, data in enumerate(SLIDES_DATA):
-        cards_html_parts = []
-        for card in data["cards"]:
-            acc = card.get("accent", "cyan")
-            bullets_li = "".join([f"<li>{b}</li>" for b in card["bullets"]])
-            cards_html_parts.append(f"""
-            <div class="card card-{acc}">
-                <div class="card-accent-bar"></div>
-                <h3>{card['title']}</h3>
-                <ul>{bullets_li}</ul>
+    for data in SLIDES:
+        stype = data.get("type")
+        body_html = ""
+        
+        if stype == "title":
+            authors_html = ""
+            for a in data["authors"]:
+                authors_html += f"""
+                <div class="author-card">
+                    <div class="author-name">{a['name']} <span class="author-ip">({a['ip']})</span></div>
+                    <div class="author-role">{a['role']}</div>
+                </div>
+                """
+            body_html = f"""
+            <div class="title-hero">
+                <div class="authors-row">{authors_html}</div>
+                <div class="motto-box">
+                    <div class="motto-text">{data['motto']}</div>
+                    <div class="motto-meta">{data['meta']}</div>
+                </div>
             </div>
-            """)
-        
-        cards_html = "\n".join(cards_html_parts)
-        active_class = "active" if i == 0 else ""
-        
+            """
+            
+        elif stype == "split":
+            bullets_li = "".join([f"<li>{b}</li>" for b in data["bullets"]])
+            img_tag = ""
+            if data.get("image") and os.path.exists(data["image"]):
+                img_tag = f"""
+                <div class="img-wrapper">
+                    <img src="{data['image']}" alt="Screenshot">
+                    <div class="caption">{data.get('caption', '')}</div>
+                </div>
+                """
+            body_html = f"""
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list">{bullets_li}</ul>
+                </div>
+                <div class="split-right">
+                    {img_tag}
+                </div>
+            </div>
+            """
+            
+        elif stype == "flow":
+            steps_html = ""
+            for s in data["steps"]:
+                steps_html += f"""
+                <div class="flow-step">
+                    <div class="step-num">{s['step']}</div>
+                    <div class="step-desc">{s['desc']}</div>
+                </div>
+                """
+            body_html = f"""
+            <div class="flow-container">
+                {steps_html}
+            </div>
+            """
+            
+        elif stype == "cards":
+            cards_html = ""
+            for c in data["cards"]:
+                acc = c.get("accent", "cyan")
+                c_li = "".join([f"<li>{b}</li>" for b in c["bullets"]])
+                cards_html += f"""
+                <div class="card card-{acc}">
+                    <div class="card-bar"></div>
+                    <div class="card-title">{c['title']}</div>
+                    <ul class="card-bullets">{c_li}</ul>
+                </div>
+                """
+            body_html = f"""
+            <div class="cards-row">
+                {cards_html}
+            </div>
+            """
+            
         slides_html_parts.append(f"""
-        <section class="slide {active_class}" id="slide-{data['slide_num']}" data-slide="{data['slide_num']}">
+        <section class="slide" id="slide-{data['num']}">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; {data['category']} &bull; SLIDE {data['slide_num']} OF {len(SLIDES_DATA)}</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">{data['category']}</span>
+                    <span class="badge-num">SLIDE {data['num']} OF {len(SLIDES)}</span>
+                </div>
                 <h1 class="slide-title">{data['title']}</h1>
                 <p class="slide-subtitle">{data['subtitle']}</p>
             </div>
-            <div class="cards-grid">
-                {cards_html}
+            <div class="slide-body">
+                {body_html}
             </div>
             <div class="slide-footer">
-                <span>{data['footer']}</span>
-                <span class="slide-counter">{data['slide_num']} / {len(SLIDES_DATA)}</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide {data['num']} / {len(SLIDES)}</span>
             </div>
         </section>
         """)
 
-    all_slides_html = "\n".join(slides_html_parts)
+    all_slides = "\n".join(slides_html_parts)
 
-    html_content = f"""<!DOCTYPE html>
+    html_doc = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team 1 - Phase 2 Final Presentation | Private Network Service Platform</title>
-    <style>
-        :root {{
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --cyan: #38bdf8;
-            --green: #34d399;
-            --rose: #f43f5e;
-            --amber: #fbbf24;
-            --font-head: 'Trebuchet MS', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-body: 'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-code: 'Consolas', 'Courier New', monospace;
-        }}
-        
-        * {{
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }}
-        
-        body {{
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }}
-        
-        .presentation-container {{
-            position: relative;
-            width: 96vw;
-            max-width: 1600px;
-            aspect-ratio: 16 / 9;
-            background: #0b1120;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            overflow: hidden;
-        }}
-        
-        .slide {{
-            display: none;
-            width: 100%;
-            height: 100%;
-            padding: 2.8rem 3.5rem 2.2rem 3.5rem;
-            flex-direction: column;
-            justify-content: space-between;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }}
-        
-        .slide.active {{
-            display: flex;
-            animation: fadeIn 0.3s ease-in-out;
-        }}
-        
-        @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(4px); }}
-            to {{ opacity: 1; transform: translateY(0); }}
-        }}
-        
-        .slide-header {{
-            margin-bottom: 1rem;
-        }}
-        
-        .category-tag {{
-            font-family: var(--font-head);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            color: var(--cyan);
-            text-transform: uppercase;
-            margin-bottom: 0.4rem;
-        }}
-        
-        .slide-title {{
-            font-family: var(--font-head);
-            font-size: 2.1rem;
-            font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.15;
-            letter-spacing: -0.02em;
-        }}
-        
-        .slide-subtitle {{
-            font-size: 1.05rem;
-            color: var(--text-muted);
-            margin-top: 0.35rem;
-        }}
-        
-        .cards-grid {{
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.4rem;
-            flex-grow: 1;
-            margin: 1rem 0;
-            align-items: stretch;
-        }}
-        
-        .card {{
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 1.3rem 1.4rem;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }}
-        
-        .card-accent-bar {{
-            width: 38px;
-            height: 4px;
-            border-radius: 2px;
-            margin-bottom: 0.8rem;
-        }}
-        
-        .card-cyan .card-accent-bar {{ background: var(--cyan); }}
-        .card-cyan h3 {{ color: var(--cyan); }}
-        
-        .card-green .card-accent-bar {{ background: var(--green); }}
-        .card-green h3 {{ color: var(--green); }}
-        
-        .card-rose .card-accent-bar {{ background: var(--rose); }}
-        .card-rose h3 {{ color: var(--rose); }}
-        
-        .card-amber .card-accent-bar {{ background: var(--amber); }}
-        .card-amber h3 {{ color: var(--amber); }}
-        
-        .card h3 {{
-            font-family: var(--font-head);
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-            line-height: 1.25;
-        }}
-        
-        .card ul {{
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.65rem;
-            flex-grow: 1;
-        }}
-        
-        .card li {{
-            font-size: 0.88rem;
-            line-height: 1.45;
-            color: #e2e8f0;
-            position: relative;
-            padding-left: 1.2rem;
-        }}
-        
-        .card li::before {{
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            line-height: 1.2;
-        }}
-        
-        .slide-footer {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 0.8rem;
-            border-top: 1px solid #1e293b;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }}
-        
-        .slide-counter {{
-            font-family: var(--font-head);
-            font-weight: 600;
-            color: var(--cyan);
-        }}
-        
-        /* Floating Navigation Controls */
-        .nav-controls {{
-            position: fixed;
-            bottom: 15px;
-            display: flex;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: 1px solid #334155;
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-        }}
-        
-        .nav-btn {{
-            background: #1e293b;
-            color: #f8fafc;
-            border: 1px solid #475569;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-family: var(--font-head);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }}
-        
-        .nav-btn:hover {{
-            background: var(--cyan);
-            color: #0f172a;
-            border-color: var(--cyan);
-        }}
-        
-        .nav-info {{
-            color: #94a3b8;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-        }}
-        
-        /* High-Definition Print Styles for PDF Export */
-        @media print {{
-            @page {{
-                size: 16in 9in landscape;
-                margin: 0;
-            }}
-            body {{
-                background: #0f172a !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                overflow: visible !important;
-                width: 16in !important;
-                height: auto !important;
-                display: block !important;
-            }}
-            .presentation-container {{
-                width: 16in !important;
-                height: auto !important;
-                max-width: none !important;
-                aspect-ratio: auto !important;
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-                background: transparent !important;
-            }}
-            .slide {{
-                display: flex !important;
-                position: relative !important;
-                width: 16in !important;
-                height: 9in !important;
-                page-break-after: always !important;
-                break-after: page !important;
-                padding: 3rem 4rem 2.5rem 4rem !important;
-            }}
-            .nav-controls {{
-                display: none !important;
-            }}
-        }}
-    </style>
+<meta charset="UTF-8">
+<title>Team 1 - Private Network Service Platform (Phase 2)</title>
+<style>
+@page {{
+    size: 1920px 1080px;
+    margin: 0;
+}}
+* {{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}}
+body {{
+    background: #0b1120;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}}
+.slide {{
+    width: 1920px;
+    height: 1080px;
+    padding: 50px 70px 40px 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #0b1120;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    overflow: hidden;
+}}
+.slide-header {{
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 18px;
+    flex-shrink: 0;
+}}
+.badge-row {{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}}
+.badge {{
+    background: #38bdf8;
+    color: #0b1120;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}}
+.badge-cat {{
+    color: #38bdf8;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}}
+.badge-num {{
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: auto;
+}}
+.slide-title {{
+    font-size: 38px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+}}
+.slide-subtitle {{
+    font-size: 18px;
+    color: #94a3b8;
+    margin-top: 6px;
+}}
+.slide-body {{
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 20px 0;
+}}
+/* Split Layout */
+.split-layout {{
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    width: 100%;
+}}
+.split-left {{
+    flex: 1.25;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}}
+.bullet-list {{
+    list-style: square;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}}
+.bullet-list li {{
+    font-size: 18px;
+    line-height: 1.55;
+    color: #cbd5e1;
+}}
+.bullet-list strong {{
+    color: #38bdf8;
+}}
+.bullet-list code {{
+    background: #0f172a;
+    color: #34d399;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    font-size: 16px;
+}}
+.split-right {{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}}
+.img-wrapper {{
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}}
+.img-wrapper img {{
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #475569;
+}}
+.caption {{
+    font-size: 14px;
+    color: #94a3b8;
+    margin-top: 10px;
+    text-align: center;
+    font-family: Consolas, monospace;
+}}
+/* Title Hero Layout */
+.title-hero {{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}}
+.authors-row {{
+    display: flex;
+    gap: 30px;
+    width: 100%;
+}}
+.author-card {{
+    flex: 1;
+    background: #1e293b;
+    border: 2px solid #38bdf8;
+    border-radius: 12px;
+    padding: 25px 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}}
+.author-card:nth-child(2) {{
+    border-color: #fbbf24;
+}}
+.author-name {{
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+}}
+.author-ip {{
+    color: #38bdf8;
+    font-size: 20px;
+    font-family: Consolas, monospace;
+}}
+.author-card:nth-child(2) .author-ip {{
+    color: #fbbf24;
+}}
+.author-role {{
+    font-size: 16px;
+    color: #cbd5e1;
+    margin-top: 10px;
+    line-height: 1.45;
+}}
+.motto-box {{
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 25px 30px;
+}}
+.motto-text {{
+    font-size: 22px;
+    font-weight: 700;
+    color: #34d399;
+}}
+.motto-meta {{
+    font-size: 16px;
+    color: #94a3b8;
+    margin-top: 8px;
+}}
+/* Flow Layout */
+.flow-container {{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px 30px;
+}}
+.flow-step {{
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+}}
+.flow-step:last-child {{
+    border-bottom: none;
+    padding-bottom: 0;
+}}
+.step-num {{
+    font-size: 17px;
+    font-weight: 700;
+    color: #38bdf8;
+    min-width: 260px;
+    font-family: Consolas, monospace;
+}}
+.step-desc {{
+    font-size: 16px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}}
+/* Cards Layout */
+.cards-row {{
+    display: flex;
+    gap: 25px;
+    width: 100%;
+}}
+.card {{
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+}}
+.card-bar {{
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 15px;
+}}
+.card-cyan .card-bar {{ background: #38bdf8; }}
+.card-cyan .card-title {{ color: #38bdf8; }}
+.card-green .card-bar {{ background: #34d399; }}
+.card-green .card-title {{ color: #34d399; }}
+.card-amber .card-bar {{ background: #fbbf24; }}
+.card-amber .card-title {{ color: #fbbf24; }}
+.card-title {{
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}}
+.card-bullets {{
+    list-style: square;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}}
+.card-bullets li {{
+    font-size: 15px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}}
+/* Footer */
+.slide-footer {{
+    border-top: 1px solid #1e293b;
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+    flex-shrink: 0;
+}}
+</style>
 </head>
 <body>
-
-<div class="presentation-container">
-    {all_slides_html}
-</div>
-
-<div class="nav-controls">
-    <button class="nav-btn" onclick="prevSlide()">&#8592; Prev</button>
-    <div class="nav-info" id="nav-info">Slide 1 of {len(SLIDES_DATA)}</div>
-    <button class="nav-btn" onclick="nextSlide()">Next &#8594;</button>
-    <button class="nav-btn" onclick="toggleFullscreen()">Fullscreen</button>
-</div>
-
-<script>
-    let currentSlide = 1;
-    const totalSlides = {len(SLIDES_DATA)};
-
-    function showSlide(n) {{
-        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById('slide-' + n);
-        if (target) {{
-            target.classList.add('active');
-            currentSlide = n;
-            document.getElementById('nav-info').textContent = 'Slide ' + n + ' of ' + totalSlides;
-        }}
-    }}
-
-    function nextSlide() {{
-        if (currentSlide < totalSlides) {{
-            showSlide(currentSlide + 1);
-        }}
-    }}
-
-    function prevSlide() {{
-        if (currentSlide > 1) {{
-            showSlide(currentSlide - 1);
-        }}
-    }}
-
-    function toggleFullscreen() {{
-        if (!document.fullscreenElement) {{
-            document.documentElement.requestFullscreen();
-        }} else {{
-            if (document.exitFullscreen) {{
-                document.exitFullscreen();
-            }}
-        }}
-    }}
-
-    document.addEventListener('keydown', (e) => {{
-        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {{
-            nextSlide();
-        }} else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {{
-            prevSlide();
-        }} else if (e.key === 'f' || e.key === 'F') {{
-            toggleFullscreen();
-        }} else if (e.key === 'Home') {{
-            showSlide(1);
-        }} else if (e.key === 'End') {{
-            showSlide(totalSlides);
-        }}
-    }});
-</script>
-
+{all_slides}
 </body>
 </html>
 """
 
     with open(HTML_PATH, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    print(f"HTML presentation successfully created: {HTML_PATH}")
+        f.write(html_doc)
+    print(f"HTML presentation created: {HTML_PATH}")
 
 
 def export_pdf():
-    print("Exporting High-Resolution PDF via Google Chrome Headless...")
+    print("Exporting 16:9 Landscape PDF via Chrome Headless...")
     chrome_bin = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    if not os.path.exists(chrome_bin):
-        print(f"Chrome not found at {chrome_bin}. Skipping automated PDF export.")
-        return
-
     cmd = [
         chrome_bin,
         "--headless",
@@ -1256,24 +1041,22 @@ def export_pdf():
         f"--print-to-pdf={PDF_PATH}",
         HTML_PATH
     ]
-    try:
-        res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        print(f"PDF successfully exported to: {PDF_PATH}")
-    except subprocess.CalledProcessError as e:
-        print(f"Error exporting PDF via Chrome: {e.stderr}")
+    subprocess.run(cmd, check=True)
+    print(f"PDF successfully exported to: {PDF_PATH}")
 
 
-def copy_to_desktop():
-    print("Copying artifacts to Desktop...")
-    subprocess.run(["cp", "-f", PPTX_PATH, DESKTOP_PPTX], check=True)
-    if os.path.exists(PDF_PATH):
-        subprocess.run(["cp", "-f", PDF_PATH, DESKTOP_PDF], check=True)
-    print("Copied PPTX and PDF to Desktop.")
+def sync_copies():
+    print("Syncing copies to Desktop and Downloads...")
+    subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pptx")], check=True)
+    subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pdf")], check=True)
+    subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DOWNLOADS_DIR, "Phase2_Final_Presentation_Team1.pdf")], check=True)
+    subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DOWNLOADS_DIR, "Phase2_Final_Presentation_Team1.pptx")], check=True)
+    print("All copies synced.")
 
 
 if __name__ == "__main__":
     build_pptx()
     build_html()
     export_pdf()
-    copy_to_desktop()
-    print("All presentation builds completed successfully!")
+    sync_copies()
+    print("Presentation build process fully finished!")

@@ -1,985 +1,1018 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team 1 - Phase 2 Final Presentation | Private Network Service Platform</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --cyan: #38bdf8;
-            --green: #34d399;
-            --rose: #f43f5e;
-            --amber: #fbbf24;
-            --font-head: 'Trebuchet MS', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-body: 'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --font-code: 'Consolas', 'Courier New', monospace;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .presentation-container {
-            position: relative;
-            width: 96vw;
-            max-width: 1600px;
-            aspect-ratio: 16 / 9;
-            background: #0b1120;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            overflow: hidden;
-        }
-        
-        .slide {
-            display: none;
-            width: 100%;
-            height: 100%;
-            padding: 2.8rem 3.5rem 2.2rem 3.5rem;
-            flex-direction: column;
-            justify-content: space-between;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        
-        .slide.active {
-            display: flex;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .slide-header {
-            margin-bottom: 1rem;
-        }
-        
-        .category-tag {
-            font-family: var(--font-head);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.12em;
-            color: var(--cyan);
-            text-transform: uppercase;
-            margin-bottom: 0.4rem;
-        }
-        
-        .slide-title {
-            font-family: var(--font-head);
-            font-size: 2.1rem;
-            font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.15;
-            letter-spacing: -0.02em;
-        }
-        
-        .slide-subtitle {
-            font-size: 1.05rem;
-            color: var(--text-muted);
-            margin-top: 0.35rem;
-        }
-        
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.4rem;
-            flex-grow: 1;
-            margin: 1rem 0;
-            align-items: stretch;
-        }
-        
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 1.3rem 1.4rem;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-        
-        .card-accent-bar {
-            width: 38px;
-            height: 4px;
-            border-radius: 2px;
-            margin-bottom: 0.8rem;
-        }
-        
-        .card-cyan .card-accent-bar { background: var(--cyan); }
-        .card-cyan h3 { color: var(--cyan); }
-        
-        .card-green .card-accent-bar { background: var(--green); }
-        .card-green h3 { color: var(--green); }
-        
-        .card-rose .card-accent-bar { background: var(--rose); }
-        .card-rose h3 { color: var(--rose); }
-        
-        .card-amber .card-accent-bar { background: var(--amber); }
-        .card-amber h3 { color: var(--amber); }
-        
-        .card h3 {
-            font-family: var(--font-head);
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-            line-height: 1.25;
-        }
-        
-        .card ul {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.65rem;
-            flex-grow: 1;
-        }
-        
-        .card li {
-            font-size: 0.88rem;
-            line-height: 1.45;
-            color: #e2e8f0;
-            position: relative;
-            padding-left: 1.2rem;
-        }
-        
-        .card li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            line-height: 1.2;
-        }
-        
-        .slide-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 0.8rem;
-            border-top: 1px solid #1e293b;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        
-        .slide-counter {
-            font-family: var(--font-head);
-            font-weight: 600;
-            color: var(--cyan);
-        }
-        
-        /* Floating Navigation Controls */
-        .nav-controls {
-            position: fixed;
-            bottom: 15px;
-            display: flex;
-            gap: 10px;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 8px 16px;
-            border-radius: 30px;
-            border: 1px solid #334155;
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-        }
-        
-        .nav-btn {
-            background: #1e293b;
-            color: #f8fafc;
-            border: 1px solid #475569;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-family: var(--font-head);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .nav-btn:hover {
-            background: var(--cyan);
-            color: #0f172a;
-            border-color: var(--cyan);
-        }
-        
-        .nav-info {
-            color: #94a3b8;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-        }
-        
-        /* High-Definition Print Styles for PDF Export */
-        @media print {
-            @page {
-                size: 16in 9in landscape;
-                margin: 0;
-            }
-            body {
-                background: #0f172a !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                overflow: visible !important;
-                width: 16in !important;
-                height: auto !important;
-                display: block !important;
-            }
-            .presentation-container {
-                width: 16in !important;
-                height: auto !important;
-                max-width: none !important;
-                aspect-ratio: auto !important;
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-                background: transparent !important;
-            }
-            .slide {
-                display: flex !important;
-                position: relative !important;
-                width: 16in !important;
-                height: 9in !important;
-                page-break-after: always !important;
-                break-after: page !important;
-                padding: 3rem 4rem 2.5rem 4rem !important;
-            }
-            .nav-controls {
-                display: none !important;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Team 1 - Private Network Service Platform (Phase 2)</title>
+<style>
+@page {
+    size: 1920px 1080px;
+    margin: 0;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body {
+    background: #0b1120;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.slide {
+    width: 1920px;
+    height: 1080px;
+    padding: 50px 70px 40px 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #0b1120;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+    overflow: hidden;
+}
+.slide-header {
+    border-bottom: 2px solid #38bdf8;
+    padding-bottom: 18px;
+    flex-shrink: 0;
+}
+.badge-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.badge {
+    background: #38bdf8;
+    color: #0b1120;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+.badge-cat {
+    color: #38bdf8;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+.badge-num {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: auto;
+}
+.slide-title {
+    font-size: 38px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+}
+.slide-subtitle {
+    font-size: 18px;
+    color: #94a3b8;
+    margin-top: 6px;
+}
+.slide-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 20px 0;
+}
+/* Split Layout */
+.split-layout {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    width: 100%;
+}
+.split-left {
+    flex: 1.25;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.bullet-list {
+    list-style: square;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.bullet-list li {
+    font-size: 18px;
+    line-height: 1.55;
+    color: #cbd5e1;
+}
+.bullet-list strong {
+    color: #38bdf8;
+}
+.bullet-list code {
+    background: #0f172a;
+    color: #34d399;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, monospace;
+    font-size: 16px;
+}
+.split-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.img-wrapper {
+    width: 100%;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.img-wrapper img {
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #475569;
+}
+.caption {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-top: 10px;
+    text-align: center;
+    font-family: Consolas, monospace;
+}
+/* Title Hero Layout */
+.title-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%;
+}
+.authors-row {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+}
+.author-card {
+    flex: 1;
+    background: #1e293b;
+    border: 2px solid #38bdf8;
+    border-radius: 12px;
+    padding: 25px 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+.author-card:nth-child(2) {
+    border-color: #fbbf24;
+}
+.author-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+}
+.author-ip {
+    color: #38bdf8;
+    font-size: 20px;
+    font-family: Consolas, monospace;
+}
+.author-card:nth-child(2) .author-ip {
+    color: #fbbf24;
+}
+.author-role {
+    font-size: 16px;
+    color: #cbd5e1;
+    margin-top: 10px;
+    line-height: 1.45;
+}
+.motto-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 25px 30px;
+}
+.motto-text {
+    font-size: 22px;
+    font-weight: 700;
+    color: #34d399;
+}
+.motto-meta {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-top: 8px;
+}
+/* Flow Layout */
+.flow-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 24px 30px;
+}
+.flow-step {
+    display: flex;
+    gap: 20px;
+    align-items: baseline;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+}
+.flow-step:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.step-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: #38bdf8;
+    min-width: 260px;
+    font-family: Consolas, monospace;
+}
+.step-desc {
+    font-size: 16px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+/* Cards Layout */
+.cards-row {
+    display: flex;
+    gap: 25px;
+    width: 100%;
+}
+.card {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+}
+.card-bar {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 15px;
+}
+.card-cyan .card-bar { background: #38bdf8; }
+.card-cyan .card-title { color: #38bdf8; }
+.card-green .card-bar { background: #34d399; }
+.card-green .card-title { color: #34d399; }
+.card-amber .card-bar { background: #fbbf24; }
+.card-amber .card-title { color: #fbbf24; }
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+.card-bullets {
+    list-style: square;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.card-bullets li {
+    font-size: 15px;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+/* Footer */
+.slide-footer {
+    border-top: 1px solid #1e293b;
+    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+</style>
 </head>
 <body>
 
-<div class="presentation-container">
-    
-        <section class="slide active" id="slide-1" data-slide="1">
+        <section class="slide" id="slide-1">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; PROJECT DEFENSE & FINAL EVALUATION &bull; SLIDE 1 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">FINAL DEFENSE & EVALUATION</span>
+                    <span class="badge-num">SLIDE 1 OF 18</span>
+                </div>
                 <h1 class="slide-title">Private Network Service Platform</h1>
-                <p class="slide-subtitle">Phase 2: Harden, Recover & Troubleshoot — Dual-Node Production Architecture</p>
+                <p class="slide-subtitle">Phase 2: Harden, Recover & Troubleshoot — Dual-Node Production Network Architecture</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Core Project Mandate</h3>
-                <ul><li>"The application stays simple — the network is the project."</li><li>100% Real Physical Hardware Demonstration on campus Wi-Fi (10.7.0.0/19).</li><li>Zero virtualization, zero container wrappers, zero simulated network sockets.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Node 1: Edge & Upstream Backends</h3>
-                <ul><li>Host: Aryan Bhargava (10.7.11.108 on en0)</li><li>Services: Nginx Main Edge Proxy (:80, :443), TLS 1.3, HTTP/2</li><li>Upstreams: Backend A (:3001) & Backend B (:3002)</li><li>DNS: Backup DNS Server (:53, TTL 30s) + PF Kernel Firewall</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Node 2: Primary DNS & Verification Client</h3>
-                <ul><li>Host: Krishna Pramod Dubale (10.7.9.214 on en0)</li><li>Services: Primary DNS Server (:53, dnsmasq, TTL 30s)</li><li>Edge DR: Standby Edge Nginx (:443) pre-configured for migration</li><li>Client: macOS strict TLS validation, curl, tshark packet capture</li></ul>
+            <div class="title-hero">
+                <div class="authors-row">
+                <div class="author-card">
+                    <div class="author-name">Aryan Bhargava <span class="author-ip">(10.7.11.108)</span></div>
+                    <div class="author-role">Node 1: Edge Proxy, Upstreams (A & B), Backup DNS, PF Firewall</div>
+                </div>
+                
+                <div class="author-card">
+                    <div class="author-name">Krishna Pramod Dubale <span class="author-ip">(10.7.9.214)</span></div>
+                    <div class="author-role">Node 2: Primary DNS Server, Standby Edge, Verification Client</div>
+                </div>
+                </div>
+                <div class="motto-box">
+                    <div class="motto-text">Core Mandate: "The application stays simple — the network is the project."</div>
+                    <div class="motto-meta">Campus Wi-Fi Subnet: 10.7.0.0/19 | Domain: app.team1.test | November 2026 Evaluation</div>
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Team 1 | Aryan Bhargava & Krishna Pramod Dubale | Computer Networks Lab Final Review</span>
-                <span class="slide-counter">1 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 1 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-2" data-slide="2">
+        <section class="slide" id="slide-2">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXECUTIVE SUMMARY &bull; SLIDE 2 OF 18</div>
-                <h1 class="slide-title">Project Scope & Key Achievements</h1>
-                <p class="slide-subtitle">Full end-to-end production hardening across all 6 project extensions</p>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">ARCHITECTURAL EVOLUTION</span>
+                    <span class="badge-num">SLIDE 2 OF 18</span>
+                </div>
+                <h1 class="slide-title">Phase 1 Baseline vs Phase 2 Hardened Production</h1>
+                <p class="slide-subtitle">Transitioning from a 3-Mac prototype to a resilient, zero-SPOF 2-Mac topology</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Resilient Core Infrastructure</h3>
-                <ul><li>Split DNS Architecture: Dual-node dnsmasq deployment on ports 53 with automated failover.</li><li>Strict TLS 1.3 & HTTP/2: Custom Root CA with SAN validation; 0 warnings without -k.</li><li>Layer 7 Reverse Proxy: Round-robin load balancing, HTTP caching (ETag / 304 Not Modified).</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Security & High Availability</h3>
-                <ul><li>Extension A (DNS Failover): Client shifts queries to backup DNS during outage (1.6MB PCAP).</li><li>Extension B (TTL & Cutover): 30s TTL configuration enabling rapid DNS cache propagation.</li><li>Extension C (Service Isolation): macOS Packet Filter (PF) drops raw LAN backend access.</li><li>Extension D (Backend HA): Nginx passive health checks reroute traffic with 0 dropped requests.</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Disaster Recovery & Diagnostics</h3>
-                <ul><li>Extension E (Standby Edge): Cross-node edge migration with dynamic PF exception.</li><li>Extension F (Troubleshooting): 60-second layer-by-layer systematic runbook.</li><li>Evidence Bundle: 10 visual terminal screenshots, 2 PCAP files, 100% test pass rate.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Phase 1 (3 Macs):</strong> Single edge proxy (Sanath) and unencrypted backends directly reachable across campus LAN.</li><li><strong>Phase 2 Realignment:</strong> Consolidated 2-node architecture with hot-standby redundancy across DNS and Edge.</li><li><strong>Node 1 (Aryan - 10.7.11.108):</strong> Reverse Proxy (Nginx), Upstream Backends A (:3001) & B (:3002), Backup DNS (:53).</li><li><strong>Node 2 (Krishna - 10.7.9.214):</strong> Primary DNS (:53), Standby Edge (:443), macOS strict TLS test engine.</li><li><strong>Security Win:</strong> macOS PF kernel firewall eliminates raw backend LAN attack surface entirely.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/01-phase2-lan-discovery-aryan.png" alt="Screenshot">
+                    <div class="caption">Live Verification: Subnet discovery, interface verification (en0), and peer reachability (~6.8ms RTT).</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Section 9 Compliance: All requirements and all 6 extensions fully operational.</span>
-                <span class="slide-counter">2 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 2 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-3" data-slide="3">
+        <section class="slide" id="slide-3">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; ARCHITECTURAL EVOLUTION &bull; SLIDE 3 OF 18</div>
-                <h1 class="slide-title">Phase 1 Baseline vs Phase 2 Hardened</h1>
-                <p class="slide-subtitle">Transitioning from a 3-Mac prototype to a resilient, secure 2-Mac production topology</p>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">NETWORK INVENTORY</span>
+                    <span class="badge-num">SLIDE 3 OF 18</span>
+                </div>
+                <h1 class="slide-title">Physical LAN Topology & Port Matrix</h1>
+                <p class="slide-subtitle">Complete service binding, transport layer mapping, and access policies</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Phase 1: 3-Mac Prototype Baseline</h3>
-                <ul><li>Mac 1 (Sanath): Dedicated Edge Nginx + Primary DNS (Single point of failure).</li><li>Mac 2 (Aryan): Dedicated Backend A (:3001) listening on LAN interface.</li><li>Mac 3 (Krishna): Dedicated Backend B (:3002) listening on LAN interface.</li><li>Limitations: Unencrypted backend ports exposed to entire LAN; zero DNS or Edge redundancy.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Phase 2: 2-Mac Hardened Production</h3>
-                <ul><li>Node 1 (Aryan - 10.7.11.108): Main Edge Proxy + Backend Cluster (A & B) + Backup DNS.</li><li>Node 2 (Krishna - 10.7.9.214): Primary DNS + Standby Edge Proxy + Verification Client.</li><li>Security: macOS PF firewall completely isolates backend ports 3001 & 3002 from LAN.</li><li>HA: Dual DNS servers eliminate DNS SPOF; Standby Edge eliminates Proxy SPOF.</li></ul>
-            </div>
-            
-
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Key Engineering Wins</h3>
-                <ul><li>Consolidated backend cluster on Node 1 reduces inter-node network latency to loopback (<0.1ms).</li><li>Primary DNS on Node 2 ensures DNS remains operational even if Node 1 undergoes hard reboot.</li><li>Zero code changes required on client application to support high-availability failovers.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Physical Subnet:</strong> 10.7.0.0/19 on interface en0 | Gateway: 10.7.0.1 | 0.0% packet loss.</li><li><strong>Port 53 UDP/TCP:</strong> dnsmasq Primary (Node 2) & Backup (Node 1) with 30s TTL.</li><li><strong>Port 80 TCP:</strong> Nginx HTTP redirect (301 Permanent Redirect to HTTPS).</li><li><strong>Port 443 TCP:</strong> Nginx Edge Proxy terminating TLS 1.3 & HTTP/2 with custom SAN cert.</li><li><strong>Ports 3001 & 3002 TCP:</strong> Python microservices bound to loopback (127.0.0.1) on Node 1.</li><li><strong>Standby Edge:</strong> Pre-configured dormant Nginx on Node 2 (:443) for disaster migration.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/01-lan-aryan-network-info-and-ping.jpg" alt="Screenshot">
+                    <div class="caption">Physical Node 1 network interface binding (en0), IP assignment, and gateway reachability.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Architectural Design Choice: Production-grade split-service topology with zero single-points-of-failure.</span>
-                <span class="slide-counter">3 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 3 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-4" data-slide="4">
+        <section class="slide" id="slide-4">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; NETWORK TOPOLOGY & SERVICES &bull; SLIDE 4 OF 18</div>
-                <h1 class="slide-title">Physical Network & Service Port Inventory</h1>
-                <p class="slide-subtitle">Physical LAN addressing, DNS binding, and upstream transport mapping</p>
-            </div>
-            <div class="cards-grid">
-                
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Physical Network Topology</h3>
-                <ul><li>Physical Subnet: 10.7.0.0/19 (Campus Wi-Fi Infrastructure, en0 interface)</li><li>Default Gateway: 10.7.0.1 | RTT between nodes: ~6.8 ms average (0.0% packet loss)</li><li>Private Domain: app.team1.test (Authoritative resolution via dnsmasq instances)</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Node 1 Service Mapping (10.7.11.108)</h3>
-                <ul><li>Port 443 TCP: Nginx Edge Main (TLS 1.3, HTTP/2, Strict SAN Certificate)</li><li>Port 80 TCP: Nginx HTTP redirect (301 Permanent Redirect to HTTPS://)</li><li>Port 53 UDP/TCP: Backup dnsmasq instance (Authoritative for app.team1.test)</li><li>Ports 3001/3002 TCP: Backend Python services (127.0.0.1, PF firewall protected)</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Node 2 Service Mapping (10.7.9.214)</h3>
-                <ul><li>Port 53 UDP/TCP: Primary dnsmasq instance (Authoritative for app.team1.test, TTL 30s)</li><li>Port 443 TCP: Standby Edge Nginx (Pre-configured dormant reverse proxy)</li><li>Client Engine: macOS System Resolver, curl strict TLS test engine, tshark packet capture</li><li>Wi-Fi DNS Config: 10.7.9.214 (Primary), 10.7.11.108 (Backup)</li></ul>
-            </div>
-            
-            </div>
-            <div class="slide-footer">
-                <span>Port Matrix: Explicit separation of edge termination (443) and protected application backends (3001/3002).</span>
-                <span class="slide-counter">4 / 18</span>
-            </div>
-        </section>
-        
-
-        <section class="slide " id="slide-5" data-slide="5">
-            <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; PROTOCOL JOURNEY &bull; SLIDE 5 OF 18</div>
-                <h1 class="slide-title">End-to-End Request Journey (7 Layers)</h1>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">PROTOCOL JOURNEY</span>
+                    <span class="badge-num">SLIDE 4 OF 18</span>
+                </div>
+                <h1 class="slide-title">End-to-End Request Journey Across 7 Layers</h1>
                 <p class="slide-subtitle">Tracing https://app.team1.test/api/status through the entire networking stack</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Phase A: Resolution & Handshake</h3>
-                <ul><li>1. DNS Lookup (L7/L4): Client queries Primary DNS 10.7.9.214:53 -> gets 10.7.11.108 (TTL 30s).</li><li>2. TCP Handshake (L4): Client sends SYN to 10.7.11.108:443; receives SYN-ACK; sends ACK.</li><li>3. TLS 1.3 Handshake (L4.5): ClientHello (ALPN h2) -> ServerHello, Cert, Handshake Finished (1-RTT).</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Phase B: Proxying & Upstream Dispatch</h3>
-                <ul><li>4. HTTP/2 Framing (L7): Stream 1 multiplexed GET /api/status request sent over encrypted pipe.</li><li>5. Edge Processing: Nginx checks SSL session, applies upstream round-robin selection.</li><li>6. Loopback Dispatch: Nginx connects to 127.0.0.1:3001 or 3002 (macOS PF permits lo0, drops en0).</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Phase C: Response & Caching</h3>
-                <ul><li>7. Backend Response: Python service emits JSON payload + X-Backend: A/B header.</li><li>8. Caching Engine: Nginx attaches ETag and Cache-Control headers; returns HTTP 200.</li><li>9. Conditional Request: Client sends If-None-Match header; Nginx instantly returns HTTP 304 Not Modified.</li></ul>
+            <div class="flow-container">
+                
+                <div class="flow-step">
+                    <div class="step-num">1. DNS Resolution (L7/L4)</div>
+                    <div class="step-desc">Client queries Primary DNS 10.7.9.214:53 via UDP; receives 10.7.11.108 with 30-second TTL.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">2. TCP 3-Way Handshake (L4)</div>
+                    <div class="step-desc">Client initiates SYN to 10.7.11.108:443; receives SYN-ACK; completes handshake with ACK.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">3. TLS 1.3 Handshake (L4.5)</div>
+                    <div class="step-desc">ClientHello with ALPN 'h2' -> ServerHello, Certificate (SAN verified), Finished in 1-RTT.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">4. HTTP/2 Multiplexing (L7)</div>
+                    <div class="step-desc">Binary stream 1 sends GET /api/status over single persistent multiplexed TCP socket.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">5. Edge Upstream Routing</div>
+                    <div class="step-desc">Nginx applies round-robin; dispatches over loopback (lo0) to 127.0.0.1:3001 or 3002.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">6. Kernel PF Enforcement</div>
+                    <div class="step-desc">macOS Packet Filter passes lo0 traffic; drops any raw LAN packets destined for 3001/3002.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">7. Response & Caching</div>
+                    <div class="step-desc">Backend emits JSON + X-Backend: A/B; Nginx sets ETag; conditional request yields HTTP 304.</div>
+                </div>
+                
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Full Stack Mastery: Every layer verified with Wireshark packet captures and strict curl output.</span>
-                <span class="slide-counter">5 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 4 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-6" data-slide="6">
+        <section class="slide" id="slide-5">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; PKI & SECURITY &bull; SLIDE 6 OF 18</div>
-                <h1 class="slide-title">PKI, Strict TLS 1.3 & Certificate Trust</h1>
-                <p class="slide-subtitle">Complete cryptographic chain of trust without insecure bypass flags</p>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">PKI & SECURITY</span>
+                    <span class="badge-num">SLIDE 5 OF 18</span>
+                </div>
+                <h1 class="slide-title">PKI Architecture & Strict TLS 1.3 Handshake</h1>
+                <p class="slide-subtitle">Native macOS System Keychain trust without insecure bypass flags (-k)</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Custom Certificate Authority</h3>
-                <ul><li>Root CA: Team1 Root CA generated with 4096-bit RSA key and SHA-256.</li><li>Signed Certificate: Server certificate valid for app.team1.test & team1.test.</li><li>Subject Alternative Name (SAN): DNS:app.team1.test, DNS:team1.test, IP:10.7.11.108, IP:10.7.9.214.</li><li>Key Security: Private keys stored with chmod 600; never committed to git repository.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>macOS System Keychain Integration</h3>
-                <ul><li>Root CA imported into /Library/Keychains/System.keychain on both MacBooks.</li><li>Explicitly trusted using: security add-trusted-cert -d -r trustRoot -k ...</li><li>Result: Native macOS trust engine validates the certificate chain identically to commercial CAs.</li><li>Browser Support: Green padlock / secure lock badge in Safari and Chrome.</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Strict TLS 1.3 Verification</h3>
-                <ul><li>Strict curl validation: curl -iv --http2 https://app.team1.test/api/status (NO -k / --insecure).</li><li>Output confirms: SSL certificate verify ok | TLSv1.3 / TLS_AES_256_GCM_SHA384.</li><li>ALPN Negotiation: Successfully negotiated ALPN protocol: h2 (HTTP/2 binary framing).</li><li>Fail-Closed: Tampered or untrusted certificates instantly reject the handshake.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Custom Root CA:</strong> 'Team1 Root CA' generated with 4096-bit RSA private key and SHA-256.</li><li><strong>Server Certificate:</strong> 2048-bit RSA with Subject Alternative Names (SAN: app.team1.test, team1.test, 10.7.11.108, 10.7.9.214).</li><li><strong>System Keychain Integration:</strong> Installed via security add-trusted-cert into /Library/Keychains/System.keychain.</li><li><strong>Strict TLS Verification:</strong> curl validates natively: SSL certificate verify ok | TLSv1.3 / TLS_AES_256_GCM_SHA384.</li><li><strong>ALPN Negotiation:</strong> Automatically negotiates ALPN: h2 (HTTP/2 binary framing).</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/02-phase2-strict-tls-status.png" alt="Screenshot">
+                    <div class="caption">Strict curl validation proving TLS 1.3 handshake, SAN verification, and HTTP/2 200 OK.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Evidence: curl_strict_tls_status.txt and terminal screenshot 02-phase2-strict-tls-status.png.</span>
-                <span class="slide-counter">6 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 5 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-7" data-slide="7">
+        <section class="slide" id="slide-6">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION A &bull; SLIDE 7 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">REVERSE PROXY</span>
+                    <span class="badge-num">SLIDE 6 OF 18</span>
+                </div>
+                <h1 class="slide-title">Layer 7 Load Balancing & Header Routing</h1>
+                <p class="slide-subtitle">Round-robin upstream distribution with backend identification headers</p>
+            </div>
+            <div class="slide-body">
+                
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Upstream Pool:</strong> Nginx balances traffic across 127.0.0.1:3001 (Backend A) and 127.0.0.1:3002 (Backend B).</li><li><strong>Backend Identification:</strong> Every response injects header X-Backend: A or X-Backend: B for complete transparency.</li><li><strong>Protocol Decoupling:</strong> Client communicates with Edge over TLS 1.3 / HTTP/2; Edge communicates with backends over HTTP/1.1.</li><li><strong>Verification:</strong> Consecutive curl requests demonstrate strict alternation: Request 1 -> B, Request 2 -> A, Request 3 -> B, Request 4 -> A.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/03-phase2-load-balancing-roundrobin.png" alt="Screenshot">
+                    <div class="caption">Live curl loop showing requests alternating cleanly between Backend A and Backend B.</div>
+                </div>
+                
+                </div>
+            </div>
+            
+            </div>
+            <div class="slide-footer">
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 6 / 18</span>
+            </div>
+        </section>
+        
+
+        <section class="slide" id="slide-7">
+            <div class="slide-header">
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">HTTP CACHING</span>
+                    <span class="badge-num">SLIDE 7 OF 18</span>
+                </div>
+                <h1 class="slide-title">HTTP Caching Mechanics: ETag & 304 Not Modified</h1>
+                <p class="slide-subtitle">RFC 9110 conditional validation saving wireless LAN bandwidth</p>
+            </div>
+            <div class="slide-body">
+                
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Initial Request (HTTP 200):</strong> Client requests static resource; Nginx computes ETag (e.g. "674...-100") and Cache-Control.</li><li><strong>Client Local Cache:</strong> Client stores representation and caches the ETag validator.</li><li><strong>Conditional Request (HTTP 304):</strong> Client sends If-None-Match with stored ETag.</li><li><strong>Zero-Body Response:</strong> Nginx confirms content has not changed; returns HTTP/2 304 Not Modified with Content-Length: 0.</li><li><strong>Bandwidth Conservation:</strong> Eliminates duplicate payload transfer over wireless LAN.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/04-phase2-caching-200-then-304.png" alt="Screenshot">
+                    <div class="caption">Initial HTTP 200 response with ETag header followed by conditional HTTP 304 Not Modified response.</div>
+                </div>
+                
+                </div>
+            </div>
+            
+            </div>
+            <div class="slide-footer">
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 7 / 18</span>
+            </div>
+        </section>
+        
+
+        <section class="slide" id="slide-8">
+            <div class="slide-header">
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION A</span>
+                    <span class="badge-num">SLIDE 8 OF 18</span>
+                </div>
                 <h1 class="slide-title">Extension A: Redundant DNS Failover</h1>
                 <p class="slide-subtitle">Automated resolver shift during primary DNS outage captured on packet level</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Dual Nameserver Architecture</h3>
-                <ul><li>Client Resolver: networksetup -setdnsservers Wi-Fi 10.7.9.214 10.7.11.108.</li><li>Primary DNS: Node 2 (10.7.9.214:53) receives normal baseline queries.</li><li>Backup DNS: Node 1 (10.7.11.108:53) running dnsmasq in hot standby.</li><li>Both DNS instances serve identical authoritative zone records for app.team1.test.</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Fault Injection & Automated Shift</h3>
-                <ul><li>Primary Failure: Primary dnsmasq process killed on Node 2.</li><li>Resolver Behavior: macOS resolver queries 10.7.9.214, hits socket timeout, and fails over to 10.7.11.108.</li><li>Verification: dig @10.7.11.108 app.team1.test +short returns 10.7.11.108 instantly.</li><li>Application Impact: curl requests continue succeeding without errors or manual intervention.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>1.6 MB Wireshark Capture Proof</h3>
-                <ul><li>Packet Capture: dns-failover.pcapng recorded on en0 via tshark.</li><li>Frames clearly prove UDP DNS queries migrating from 10.7.9.214 to 10.7.11.108.</li><li>Restoration: Primary dnsmasq restarted; resolver restores primary affinity seamlessly.</li><li>Evidence: ext_a_system_resolver_failover.txt & 08-phase2-dns-failover-backup-resolver.png.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Dual DNS Config:</strong> macOS client configured with Primary (10.7.9.214) and Backup (10.7.11.108).</li><li><strong>Fault Injection:</strong> Primary dnsmasq process terminated on Node 2.</li><li><strong>Automated Failover:</strong> Client resolver detects socket timeout on Primary and routes queries to Backup (10.7.11.108).</li><li><strong>Zero Interruption:</strong> curl https://app.team1.test continues resolving and serving requests seamlessly.</li><li><strong>Packet Capture Proof:</strong> dns-failover.pcapng (1.6 MB) recorded via tshark captures the exact port 53 migration.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/08-phase2-dns-failover-backup-resolver.png" alt="Screenshot">
+                    <div class="caption">Terminal verification: Primary DNS stopped, client resolver automatically falling back to Backup DNS.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Rubric Score: 15/15 Marks category (DNS resilience, TTL, and HA).</span>
-                <span class="slide-counter">7 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 8 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-8" data-slide="8">
+        <section class="slide" id="slide-9">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION B &bull; SLIDE 8 OF 18</div>
-                <h1 class="slide-title">Extension B: Dynamic TTL & Controlled Cutover</h1>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION B</span>
+                    <span class="badge-num">SLIDE 9 OF 18</span>
+                </div>
+                <h1 class="slide-title">Extension B: Dynamic TTL & Controlled DNS Cutover</h1>
                 <p class="slide-subtitle">Optimizing DNS cache expiration for rapid disaster recovery propagation</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>The TTL Engineering Trade-off</h3>
-                <ul><li>High TTL (e.g. 86400s): Minimizes DNS query volume; delays disaster cutover by hours/days.</li><li>Low TTL (e.g. 5s): Instant cutover; introduces excessive query overhead on wireless LAN.</li><li>Phase 2 Design Choice: 30-Second TTL (address=/app.team1.test/10.7.11.108 with 30s TTL).</li><li>Provides sub-minute recovery time objective (RTO) with minimal query overhead.</li></ul>
-            </div>
-            
-
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>TTL Countdown & Cache Eviction</h3>
-                <ul><li>Observed behavior: Consecutive dig queries show TTL decrementing (30 -> 25 -> 12 -> 0).</li><li>At TTL=0, resolver automatically refetches the record from dnsmasq.</li><li>Negative Caching: Controlled via min-cache-ttl=0 to prevent caching NXDOMAIN failures.</li><li>Local OS Cache: Managed via macOS mDNSResponder daemon.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Instant Cutover Procedure</h3>
-                <ul><li>Cutover Mechanism: scripts/phase2/set-backup-dns-migration.sh updates DNS record.</li><li>Cache Purge: dscacheutil -flushcache && sudo killall -HUP mDNSResponder.</li><li>Verification: dig immediately resolves new target IP without waiting for cache expiration.</li><li>Evidence: dns-cutover-30s-ttl.txt and 10-phase2-dns-cutover-and-restore.png.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>The TTL Trade-off:</strong> High TTL (e.g. 24h) minimizes DNS query overhead but causes slow failovers; low TTL (5s) floods wireless LAN.</li><li><strong>Phase 2 Design Choice:</strong> 30-Second TTL provides sub-minute disaster cutover with minimal wireless overhead.</li><li><strong>TTL Countdown:</strong> Consecutive dig queries display TTL counting down: 30s -> 25s -> 12s -> 0s.</li><li><strong>Controlled Cutover:</strong> DNS record updated and client cache flushed via dscacheutil -flushcache && sudo killall -HUP mDNSResponder.</li><li><strong>Negative Caching:</strong> min-cache-ttl=0 configured to prevent persistent caching of transient lookup errors.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/10-phase2-dns-cutover-and-restore.png" alt="Screenshot">
+                    <div class="caption">DNS cutover test: Verifying 30s TTL record update, cache eviction, and instant target restoration.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Theoretical Understanding: Evaluators test negative caching, resolver caching, and TTL trade-offs.</span>
-                <span class="slide-counter">8 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 9 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-9" data-slide="9">
+        <section class="slide" id="slide-10">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION C &bull; SLIDE 9 OF 18</div>
-                <h1 class="slide-title">Extension C: Kernel-Level Service Isolation</h1>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION C</span>
+                    <span class="badge-num">SLIDE 10 OF 18</span>
+                </div>
+                <h1 class="slide-title">Extension C: Kernel-Level Service Isolation (macOS PF)</h1>
                 <p class="slide-subtitle">Enforcing zero-trust perimeter around backend services using macOS PF</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>The Security Vulnerability</h3>
-                <ul><li>Problem: If backends listen on 0.0.0.0, any attacker on campus Wi-Fi can bypass Nginx.</li><li>Bypass Risk: Attacker sends raw HTTP requests directly to ports 3001 and 3002.</li><li>Impact: Bypasses TLS encryption, authentication, rate limiting, and HTTP caching.</li><li>Requirement: Kernel-level packet filtering enforcing service isolation.</li></ul>
-            </div>
-            
-
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>macOS Packet Filter (PF) Architecture</h3>
-                <ul><li>PF Anchor: Dedicated anchor at com.apple/team1_isolation loaded via pfctl.</li><li>Rule 1: block in quick on en0 proto tcp to any port {3001, 3002} (Drops LAN packets).</li><li>Rule 2: pass in quick on lo0 proto tcp to any port {3001, 3002} (Permits local Nginx).</li><li>Rule 3: pass in quick on en0 proto tcp to any port {80, 443} (Permits public edge).</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Empirical Verification Proof</h3>
-                <ul><li>Remote Probe 1: nc -zv -w 2 10.7.11.108 3001 -> Connection timed out (100% blocked).</li><li>Remote Probe 2: nc -zv -w 2 10.7.11.108 3002 -> Connection timed out (100% blocked).</li><li>Remote Edge Probe: nc -zv -w 2 10.7.11.108 443 -> Succeeded! (Edge open).</li><li>Evidence: nc_3001.txt, nc_3002.txt & 05-phase2-pf-firewall-service-isolation.png.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>The Vulnerability:</strong> If raw backends listen on LAN interfaces, any unauthorized user can bypass Nginx security.</li><li><strong>Defense-in-Depth:</strong> Backends bound to 127.0.0.1 AND protected by macOS Packet Filter (pfctl) kernel anchor.</li><li><strong>PF Anchor Rules (com.apple/team1_isolation):</strong></li><li>  • block in quick on en0 proto tcp to any port {3001, 3002}</li><li>  • pass in quick on lo0 proto tcp to any port {3001, 3002}</li><li>  • pass in quick on en0 proto tcp to any port {80, 443}</li><li><strong>Empirical Proof:</strong> nc to 10.7.11.108:3001 times out (dropped by PF), while port 443 connects instantly.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/05-phase2-pf-firewall-service-isolation.png" alt="Screenshot">
+                    <div class="caption">Firewall verification: nc probe to ports 3001/3002 times out while HTTPS port 443 succeeds.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Rubric Score: 10/10 Marks category (Service isolation and edge migration).</span>
-                <span class="slide-counter">9 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 10 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-10" data-slide="10">
+        <section class="slide" id="slide-11">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION D &bull; SLIDE 10 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION D</span>
+                    <span class="badge-num">SLIDE 11 OF 18</span>
+                </div>
                 <h1 class="slide-title">Extension D: Upstream HA & Passive Health Checks</h1>
                 <p class="slide-subtitle">Transparent upstream failover and automatic recovery without dropping requests</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Nginx Upstream Configuration</h3>
-                <ul><li>upstream backend_cluster {</li><li>    server 127.0.0.1:3001 max_fails=2 fail_timeout=10s;</li><li>    server 127.0.0.1:3002 max_fails=2 fail_timeout=10s;</li><li>}</li><li>proxy_next_upstream error timeout http_502;</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Zero-Drop Failure Handling</h3>
-                <ul><li>Fault Injection: Backend A stopped (pkill -f 'backend.py --id A').</li><li>Client Test: 5 consecutive curl requests sent to https://app.team1.test/api/status.</li><li>Result: 100% of requests successfully served by Backend B (X-Backend: B).</li><li>Zero Dropped Connections: Nginx intercepts upstream refusal and retries Backend B instantly.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Automatic Recovery & Rejoin</h3>
-                <ul><li>Rejoining: Backend A restarted (python3 backend.py --id A --port 3001).</li><li>Cool-down: After fail_timeout=10s expires, Nginx probes Backend A.</li><li>Restoration: 6 consecutive requests alternate B -> A -> B -> A -> B -> A.</li><li>Evidence: backend-failover-a-down.txt & backend-recovery-roundrobin.txt.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Nginx HA Config:</strong> server 127.0.0.1:3001 max_fails=2 fail_timeout=10s; proxy_next_upstream error timeout http_502;</li><li><strong>Fault Injection:</strong> Backend A killed (pkill -f 'backend.py --id A').</li><li><strong>Zero Dropped Requests:</strong> 5 consecutive client requests served 100% by Backend B (X-Backend: B). Nginx catches TCP RST and fails over.</li><li><strong>Automatic Recovery:</strong> Backend A restarted; after fail_timeout=10s expires, Nginx sends probe request and reintroduces A into round-robin.</li><li><strong>Restored Balance:</strong> 6 subsequent requests alternate B -> A -> B -> A -> B -> A.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/06-phase2-backend-ha-failover-a-down.png" alt="Screenshot">
+                    <div class="caption">Backend failover proof: 5 consecutive curls successfully served by Backend B when Backend A is down.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>High Availability: Demonstrates seamless upstream resilience with zero client-visible errors.</span>
-                <span class="slide-counter">10 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 11 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-11" data-slide="11">
+        <section class="slide" id="slide-12">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION E &bull; SLIDE 11 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION E</span>
+                    <span class="badge-num">SLIDE 12 OF 18</span>
+                </div>
                 <h1 class="slide-title">Extension E: Standby Edge Disaster Recovery</h1>
                 <p class="slide-subtitle">Cross-node edge proxy cutover with dynamic firewall migration</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Catastrophic Edge Failure Scenario</h3>
-                <ul><li>Scenario: Node 1 edge proxy crashes, suffers kernel panic, or loses power.</li><li>Challenge: Upstream backends are on Node 1; how to serve clients if Node 1 edge is down?</li><li>Solution: Standby Edge Nginx deployed on Node 2 (10.7.9.214:443).</li><li>Requires secure cross-node proxying without exposing backends to entire LAN.</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Dynamic Migration PF Rule</h3>
-                <ul><li>Firewall Exception: Node 1 dynamically loads migration rule anchor com.apple/team1_migration:</li><li>pass in quick on en0 proto tcp from 10.7.9.214 to any port {3001, 3002}.</li><li>Pinpointed Access: ONLY Node 2 is permitted to reach ports 3001 & 3002.</li><li>All other LAN hosts remain 100% blocked by base isolation anchor.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Controlled Cutover & Verification</h3>
-                <ul><li>DNS Cutover: Primary DNS updated: address=/app.team1.test/10.7.9.214.</li><li>Verification: curl -iv https://app.team1.test/api/status connects to 10.7.9.214:443.</li><li>Standby Nginx reverse-proxies over LAN to 10.7.11.108:3001/3002 and returns 200 OK.</li><li>Evidence: standby_edge_curl.txt, migration_nc_3001.txt & 09-phase2-standby-edge-migration.png.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>Disaster Scenario:</strong> Node 1 edge proxy crashes or suffers network partition.</li><li><strong>Standby Edge:</strong> Pre-configured dormant Nginx instance on Node 2 (10.7.9.214:443).</li><li><strong>Dynamic Firewall Migration Rule:</strong> Node 1 dynamically loads migration anchor com.apple/team1_migration:</li><li>  • pass in quick on en0 proto tcp from 10.7.9.214 to any port {3001, 3002}</li><li><strong>Pinpointed Access:</strong> ONLY Node 2 can reach backends over LAN; all other network hosts remain blocked.</li><li><strong>DNS Cutover:</strong> Primary DNS record updated to 10.7.9.214; client requests served by Standby Edge.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/phase2/09-phase2-standby-edge-migration.png" alt="Screenshot">
+                    <div class="caption">Edge migration verification: Standby Nginx on Node 2 proxying traffic to Node 1 backends.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Disaster Recovery: Enterprise-grade migration strategy demonstrating advanced network security.</span>
-                <span class="slide-counter">11 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 12 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-12" data-slide="12">
+        <section class="slide" id="slide-13">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; EXTENSION F &bull; SLIDE 12 OF 18</div>
-                <h1 class="slide-title">Extension F: Layer-by-Layer Troubleshooting</h1>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">EXTENSION F</span>
+                    <span class="badge-num">SLIDE 13 OF 18</span>
+                </div>
+                <h1 class="slide-title">Extension F: Layer-by-Layer Troubleshooting Runbook</h1>
                 <p class="slide-subtitle">60-second diagnostic runbook for faculty-injected network faults</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>The 60-Second Diagnostic Pipeline</h3>
-                <ul><li>1. L3 Connectivity: ping -c 2 10.7.11.108 (Tests ARP, Wi-Fi link, IP routing).</li><li>2. L7 DNS: dig @10.7.9.214 app.team1.test +short (Tests DNS port 53 & zone file).</li><li>3. L4 Transport: nc -zv -w 2 10.7.11.108 443 (Tests Nginx listener & PF firewall).</li><li>4. L4.5 TLS: openssl s_client -connect 10.7.11.108:443 (Tests cert validity & SAN).</li><li>5. L7 HTTP: curl -iv --http2 https://app.team1.test/api/status (Tests 200 OK & backends).</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Fault Matrix & Rapid Remediation</h3>
-                <ul><li>Fault: DNS returns wrong IP -> Check dnsmasq.conf, restart dnsmasq, flush client cache.</li><li>Fault: Port 443 connection refused -> Check sudo nginx -t, verify nginx worker process.</li><li>Fault: HTTP 502 Bad Gateway -> Backend process dead; restart python3 backend.py.</li><li>Fault: curl certificate verify failed -> Re-add Root CA to macOS keychain with trustRoot.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Automated Verification Suite</h3>
-                <ul><li>Single Command Test: bash scripts/phase2/test-all.sh runs all 12 validation tests.</li><li>Instant Health Check: bash scripts/phase2/check-phase2-status.sh prints live process table.</li><li>Full Rollback Script: bash scripts/phase2/rollback.sh restores network to pristine DHCP state.</li><li>Guaranteed recovery from any faculty fault in under 60 seconds.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>L1/L3 Connectivity:</strong> ping -c 2 <target_ip> (Tests ARP resolution, Wi-Fi link, IP routing).</li><li><strong>L7 DNS Resolution:</strong> dig @<dns_ip> app.team1.test +short (Tests port 53 listener & zone records).</li><li><strong>L4 Transport / Firewall:</strong> nc -zv -w 2 <target_ip> 443 (Distinguishes between port closed vs PF drop).</li><li><strong>L4.5 TLS Cryptography:</strong> openssl s_client -connect <target_ip>:443 (Tests cert validity & SAN match).</li><li><strong>L7 Application:</strong> curl -iv --http2 https://app.team1.test/api/status (Tests 200 OK & backend headers).</li><li><strong>Rapid Remediation:</strong> bash scripts/phase2/test-all.sh runs full 12-test suite in 15 seconds.</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/18-break4-wrong-dns-server.jpg" alt="Screenshot">
+                    <div class="caption">Fault isolation evidence: Diagnosing DNS failure mode and verifying negative query resolution.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Rubric Score: 10/10 Marks category (Troubleshooting challenge defense).</span>
-                <span class="slide-counter">12 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 13 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-13" data-slide="13">
+        <section class="slide" id="slide-14">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; WIRESHARK ANALYSIS &bull; SLIDE 13 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">WIRESHARK ANALYSIS</span>
+                    <span class="badge-num">SLIDE 14 OF 18</span>
+                </div>
                 <h1 class="slide-title">Wireshark Packet Analysis & Protocol Evidence</h1>
                 <p class="slide-subtitle">Deep-dive frame inspection across DNS, TCP 3-way handshake, TLS 1.3 & HTTP/2</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>DNS & TCP Handshake Frames</h3>
-                <ul><li>DNS Query/Response: UDP port 53 frame showing Standard query 0x1a2b A app.team1.test.</li><li>DNS Answer: Returns 10.7.11.108 with Time to live: 30 seconds.</li><li>TCP 3-Way Handshake: Syn (seq=0) -> Syn-Ack (seq=0, ack=1) -> Ack (seq=1, ack=1).</li><li>TCP Options: MSS 1460, Window Scale 6, SACK Permitted.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>TLS 1.3 & HTTP/2 Protocol Frames</h3>
-                <ul><li>Client Hello: Cipher Suites including TLS_AES_256_GCM_SHA384, ALPN extension: h2.</li><li>Server Hello: TLS 1.3 selected, Key Share exchange, Encrypted Extensions.</li><li>Certificate Frame: X.509 Certificate with SAN: app.team1.test, Issuer: Team1 Root CA.</li><li>HTTP/2 Multiplexing: Stream ID: 1, HEADERS frame + DATA frame (JSON payload).</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Packet Capture Artifacts in Repo</h3>
-                <ul><li>phase1-flow.pcapng (706 KB): Baseline DNS, TCP, TLS, and HTTP transactions.</li><li>dns-failover.pcapng (1.6 MB): Live continuous capture proving automated DNS failover.</li><li>Wireshark Screenshots: 10 individual JPEG captures in evidence/ depicting every handshake.</li><li>Terminal Captures: 10 high-resolution PNG terminal screenshots in evidence/phase2/.</li></ul>
+            <div class="split-layout">
+                <div class="split-left">
+                    <ul class="bullet-list"><li><strong>DNS Query/Response:</strong> UDP port 53 frame showing Standard query A app.team1.test, Answer with TTL: 30s.</li><li><strong>TCP 3-Way Handshake:</strong> SYN (seq=0) -> SYN-ACK (seq=0, ack=1) -> ACK (seq=1, ack=1) with MSS 1460.</li><li><strong>TLS 1.3 Handshake:</strong> Client Hello with ALPN h2, Server Hello with key share exchange (1-RTT).</li><li><strong>HTTP/2 Multiplexing:</strong> Binary HEADERS and DATA frames multiplexed over stream 1.</li><li><strong>Capture Artifacts in Repo:</strong> phase1-flow.pcapng (706 KB) + dns-failover.pcapng (1.6 MB continuous failover capture).</li></ul>
+                </div>
+                <div class="split-right">
+                    
+                <div class="img-wrapper">
+                    <img src="/Users/aryan./cn-project/evidence/10-wireshark-tcp-3way-handshake.jpg" alt="Screenshot">
+                    <div class="caption">Wireshark capture: Frame-by-frame analysis of the TCP 3-way handshake to port 443.</div>
+                </div>
+                
+                </div>
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Course Compliance: Section 8 Step 6 Wireshark requirement fully documented and proven.</span>
-                <span class="slide-counter">13 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 14 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-14" data-slide="14">
+        <section class="slide" id="slide-15">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; PRODUCTION HARDENING &bull; SLIDE 14 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">PRODUCTION HARDENING</span>
+                    <span class="badge-num">SLIDE 15 OF 18</span>
+                </div>
                 <h1 class="slide-title">Production Hardening & Architectural Trade-offs</h1>
                 <p class="slide-subtitle">Critique of design decisions, scaling bottlenecks, and real-world datacenter practices</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Health Checking Mechanisms</h3>
-                <ul><li>Our Architecture: Nginx Open Source passive health checks (max_fails=2, fail_timeout=10s).</li><li>Trade-off: Requires 1-2 failed client requests before an upstream server is marked down.</li><li>Enterprise Hardening: Nginx Plus / Envoy active synthetic health probes (health_check uri=/api/health).</li><li>Removes failed backends proactively before any client request experiences latency.</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Edge Routing & Failover</h3>
-                <ul><li>Our Architecture: DNS-based failover with 30s TTL and dual resolver entries.</li><li>Trade-off: Reliant on client stub resolver behavior and local operating system caching.</li><li>Enterprise Hardening: BGP Anycast routing where both nodes announce identical virtual IP (VIP).</li><li>Sub-second failover at Layer 3/4 via ECMP router re-convergence with zero DNS caching delay.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Zero-Trust Upstream Security</h3>
-                <ul><li>Our Architecture: macOS PF firewall + loopback binding for upstream isolation.</li><li>Enterprise Hardening: Mutual TLS (mTLS) with client certificates between Edge and Backends.</li><li>Cryptographic identity verification ensures only authorized reverse proxies can decrypt backend traffic.</li><li>Automated Certificate Lifecycle: ACME protocol / Let's Encrypt / HashiCorp Vault.</li></ul>
+            <div class="cards-row">
+                
+                <div class="card card-cyan">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Health Checking Mechanisms</div>
+                    <ul class="card-bullets"><li>Our Architecture: Nginx OSS passive health checks (max_fails=2, fail_timeout=10s).</li><li>Trade-off: Requires 1-2 failed client requests before an upstream is marked down.</li><li>Enterprise Production: Envoy / Nginx Plus active synthetic probes (health_check uri=/api/health).</li><li>Proactively removes failed servers before client requests ever experience latency.</li></ul>
+                </div>
+                
+                <div class="card card-amber">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Edge Routing & Failover</div>
+                    <ul class="card-bullets"><li>Our Architecture: DNS-based failover with 30s TTL and dual resolver entries.</li><li>Trade-off: Dependent on client resolver implementation and OS cache flushing.</li><li>Enterprise Production: BGP Anycast routing where both nodes announce identical Virtual IP (VIP).</li><li>Sub-second failover at Layer 3/4 via ECMP router re-convergence with zero DNS delay.</li></ul>
+                </div>
+                
+                <div class="card card-green">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Zero-Trust Upstream Security</div>
+                    <ul class="card-bullets"><li>Our Architecture: macOS PF firewall + loopback binding for upstream isolation.</li><li>Enterprise Production: Mutual TLS (mTLS) with client certificates between Edge and Backends.</li><li>Cryptographic identity guarantees only authenticated proxies can decrypt backend traffic.</li><li>Automated Certificate Lifecycle: ACME protocol / HashiCorp Vault automated rotation.</li></ul>
+                </div>
+                
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Viva Excellence: Demonstrating high-level architectural maturity and industry best practices.</span>
-                <span class="slide-counter">14 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 15 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-15" data-slide="15">
+        <section class="slide" id="slide-16">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; LIVE DEMO PLAN &bull; SLIDE 15 OF 18</div>
-                <h1 class="slide-title">Official 11-Step Evaluation Cheat Sheet</h1>
-                <p class="slide-subtitle">Step-by-step cue card strictly matching Section 8 of the course rubric</p>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">LIVE DEMO PLAN</span>
+                    <span class="badge-num">SLIDE 16 OF 18</span>
+                </div>
+                <h1 class="slide-title">Official 11-Step Evaluation Live Demo Plan</h1>
+                <p class="slide-subtitle">Step-by-step checklist matching Section 8 of the course rubric</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Steps 1 - 4: Discovery, DNS & TLS</h3>
-                <ul><li>Step 1: Display network topology diagram and IP/service inventory table.</li><li>Step 2: Confirm LAN reachability: ping -c 2 10.7.11.108 and ping -c 2 10.7.9.214.</li><li>Step 3: Resolve private domain: dig @10.7.9.214 app.team1.test +short (Returns 10.7.11.108).</li><li>Step 4: Strict HTTPS request: curl -iv --http2 https://app.team1.test/api/status (Strict TLS 1.3).</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Steps 5 - 8: Load Balancing, Wireshark & HA</h3>
-                <ul><li>Step 5: Run 4 consecutive curls: demonstrate X-Backend alternating between A and B.</li><li>Step 6: Open Wireshark / show evidence: DNS query, TCP 3-way, TLS 1.3 handshake frames.</li><li>Step 7: HTTP caching: Initial 200 (ETag) -> subsequent conditional request returns 304 Not Modified.</li><li>Step 8: Stop Backend A: run 5 curls -> 100% served by Backend B; restart A -> auto-rejoins!</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Steps 9 - 11: Failover, Diagnostics & Viva</h3>
-                <ul><li>Step 9: Stop Primary DNS: show client shifts to Backup DNS 10.7.11.108 (pcap capture).</li><li>Step 10: Faculty Fault Injection: execute systematic 60s runbook (L3 -> L7 -> L4 -> L4.5).</li><li>Step 11: Individual Viva: Answer technical defense questions on DNS, TLS, PF, and Nginx.</li></ul>
+            <div class="flow-container">
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 1: Network Topology</div>
+                    <div class="step-desc">Show Slide 3 and cat docs/PHASE2_ARCHITECTURE.md displaying IPs, ports, and interface mappings.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 2: Private LAN Reachability</div>
+                    <div class="step-desc">Execute ping -c 2 10.7.11.108 from Krishna's Mac confirming 0.0% packet loss and low latency.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 3: Private DNS Resolution</div>
+                    <div class="step-desc">Run dig @10.7.9.214 app.team1.test +short returning 10.7.11.108 with 30-second TTL.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 4: Strict HTTPS Verification</div>
+                    <div class="step-desc">Run curl -iv --http2 https://app.team1.test/api/status without -k (Strict TLS 1.3 verification).</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 5: Upstream Load Balancing</div>
+                    <div class="step-desc">Run 4 consecutive curl requests demonstrating alternating X-Backend: A and X-Backend: B headers.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 6: Wireshark Packet Proof</div>
+                    <div class="step-desc">Show Wireshark frames for DNS query, TCP 3-way handshake, TLS 1.3 handshake, and HTTP/2 framing.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 7: HTTP Caching Validation</div>
+                    <div class="step-desc">Execute test-cache.sh showing initial HTTP 200 with ETag followed by conditional HTTP 304 Not Modified.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 8: Backend High Availability</div>
+                    <div class="step-desc">Stop Backend A; run 5 curls (100% served by B with 0 errors); restart A (rejoins round-robin).</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 9: Redundant DNS Failover</div>
+                    <div class="step-desc">Stop Primary DNS; show client resolver fails over to Backup DNS 10.7.11.108 (dns-failover.pcapng).</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 10: Faculty Fault Diagnosis</div>
+                    <div class="step-desc">Execute systematic 60-second diagnostic runbook: L1 -> L7 DNS -> L4 Port -> L4.5 TLS -> L7 HTTP.</div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-num">Step 11: Individual Viva Defense</div>
+                    <div class="step-desc">Defend design decisions, PF kernel isolation, TLS 1.3 1-RTT, and proxy_next_upstream mechanics.</div>
+                </div>
+                
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Evaluation Roadmap: Guarantees full coverage of all 11 required evaluation steps.</span>
-                <span class="slide-counter">15 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 16 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-16" data-slide="16">
+        <section class="slide" id="slide-17">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; VIVA DEFENSE GUIDE &bull; SLIDE 16 OF 18</div>
-                <h1 class="slide-title">Viva Defense: High-Scoring Technical Answers</h1>
-                <p class="slide-subtitle">Model answers to critical examiner questions on networking protocols and design</p>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">VIVA DEFENSE GUIDE</span>
+                    <span class="badge-num">SLIDE 17 OF 18</span>
+                </div>
+                <h1 class="slide-title">Viva Defense: High-Scoring Technical Model Answers</h1>
+                <p class="slide-subtitle">Precision technical rationale for top examiner questions</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Q1: Defense-in-Depth for Backends</h3>
-                <ul><li>Question: Why bind backends to 127.0.0.1 AND enforce macOS PF firewall rules?</li><li>Answer: Defense-in-depth principle. If a junior developer accidentally binds a backend to 0.0.0.0 or if a process binds to a public socket, the kernel-level PF packet filter guarantees packets arriving on en0 are dropped before reaching the application layer.</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Q2: macOS DNS Resolver Failover</h3>
-                <ul><li>Question: How does macOS mDNSResponder handle primary vs backup DNS servers?</li><li>Answer: macOS queries the first configured nameserver (10.7.9.214). Upon query timeout or ICMP Port Unreachable, the resolver marks the primary as degraded and falls back to the secondary (10.7.11.108), caching the failover state until the primary recovers.</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Q3: TLS 1.3 vs TLS 1.2 Latency</h3>
-                <ul><li>Question: Why is TLS 1.3 fundamentally faster than TLS 1.2 during session establishment?</li><li>Answer: TLS 1.2 requires 2 full round-trips (2-RTT) for negotiation and key exchange. TLS 1.3 completes in 1-RTT because the client speculatively sends its Diffie-Hellman key share directly inside the ClientHello message.</li></ul>
+            <div class="cards-row">
+                
+                <div class="card card-cyan">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Q1: Defense-in-Depth for Backends</div>
+                    <ul class="card-bullets"><li>Q: Why bind backends to 127.0.0.1 AND use PF firewall?</li><li>A: Defense-in-depth principle. If a backend is accidentally bound to 0.0.0.0 or if an unauthorized process binds to a public port, the kernel PF packet filter guarantees incoming packets on en0 are silently dropped before reaching the application layer.</li></ul>
+                </div>
+                
+                <div class="card card-amber">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Q2: macOS DNS Resolver Failover</div>
+                    <ul class="card-bullets"><li>Q: How does macOS resolver handle dual DNS entries?</li><li>A: mDNSResponder maintains affinity to the first nameserver (10.7.9.214). Upon query timeout, the resolver marks the primary as degraded, falls back to the secondary (10.7.11.108), and caches that failover state until the primary recovers.</li></ul>
+                </div>
+                
+                <div class="card card-green">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Q3: TLS 1.3 vs TLS 1.2 Handshake Latency</div>
+                    <ul class="card-bullets"><li>Q: Why is TLS 1.3 faster than TLS 1.2 during connection setup?</li><li>A: TLS 1.2 requires 2 full round-trips (2-RTT) for negotiation and key exchange. TLS 1.3 completes in 1-RTT because the client speculatively sends its Diffie-Hellman key share inside the ClientHello message.</li></ul>
+                </div>
+                
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Viva Defense Part 1: Deep technical understanding directly addresses Section 10 (10 marks).</span>
-                <span class="slide-counter">16 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 17 / 18</span>
             </div>
         </section>
         
 
-        <section class="slide " id="slide-17" data-slide="17">
+        <section class="slide" id="slide-18">
             <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; VIVA DEFENSE GUIDE &bull; SLIDE 17 OF 18</div>
-                <h1 class="slide-title">Viva Defense: Caching, HA & Edge Migration</h1>
-                <p class="slide-subtitle">Technical rationale for proxy_next_upstream, HTTP 304, and migration security</p>
-            </div>
-            <div class="cards-grid">
-                
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Q4: HTTP 304 Not Modified Semantics</h3>
-                <ul><li>Question: Why does an HTTP 304 response have a Content-Length of 0 and no response body?</li><li>Answer: RFC 9110 specifies that HTTP 304 is a conditional validation response. Because the client provided If-None-Match with a matching ETag, the cached representation in client memory is identical. Sending a body would waste network bandwidth.</li></ul>
-            </div>
-            
-
-            <div class="card card-rose">
-                <div class="card-accent-bar"></div>
-                <h3>Q5: Nginx proxy_next_upstream Mechanics</h3>
-                <ul><li>Question: What happens under the hood when Backend A is killed during an active request?</li><li>Answer: The TCP SYN to 127.0.0.1:3001 immediately receives an RST packet. Nginx's proxy_next_upstream error timeout http_502 directive intercepts this kernel error before emitting a 502 to the client, transparently dispatching the request to Backend B.</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Q6: Migration Anchor Security</h3>
-                <ul><li>Question: In Extension E, why use a dedicated migration anchor rather than disabling PF?</li><li>Answer: Disabling PF exposes ports 3001 and 3002 to all hosts on the 10.7.0.0/19 subnet. The migration anchor pinpoints permission strictly to Node 2 (from 10.7.9.214), maintaining complete isolation against all other network devices.</li></ul>
-            </div>
-            
-            </div>
-            <div class="slide-footer">
-                <span>Viva Defense Part 2: Demonstrating precision in networking and protocol engineering.</span>
-                <span class="slide-counter">17 / 18</span>
-            </div>
-        </section>
-        
-
-        <section class="slide " id="slide-18" data-slide="18">
-            <div class="slide-header">
-                <div class="category-tag">TEAM 1 &bull; DELIVERABLES & CONCLUSION &bull; SLIDE 18 OF 18</div>
+                <div class="badge-row">
+                    <span class="badge">TEAM 1</span>
+                    <span class="badge-cat">DELIVERABLES & CONCLUSION</span>
+                    <span class="badge-num">SLIDE 18 OF 18</span>
+                </div>
                 <h1 class="slide-title">Submission Manifest & Team Sign-off</h1>
                 <p class="slide-subtitle">Complete verification bundle, open-source repository, and live services status</p>
             </div>
-            <div class="cards-grid">
+            <div class="slide-body">
                 
-            <div class="card card-cyan">
-                <div class="card-accent-bar"></div>
-                <h3>Deliverables Manifest</h3>
-                <ul><li>1. Architecture Document: docs/PHASE2_ARCHITECTURE.md & .html</li><li>2. Final Report: docs/PHASE2_FINAL_REPORT.md & .html</li><li>3. Presentation Decks: Phase2_Final_Presentation_Team1.pptx & .pdf</li><li>4. Configuration Bundle: config/phase2/ (6 production configs)</li><li>5. Source & Scripts: scripts/phase2/ (20 verified automation scripts)</li></ul>
-            </div>
-            
-
-            <div class="card card-green">
-                <div class="card-accent-bar"></div>
-                <h3>Evidence & Repository</h3>
-                <ul><li>6. Evidence Folder: evidence/phase2/ (10 PNG screenshots, 1.6MB PCAP, raw logs)</li><li>7. Submission Archive: ~/Desktop/Phase2_Submission_Team1.zip (Complete bundle)</li><li>8. GitHub Repository: https://github.com/sanath-2512/Computer_Network</li><li>Full commit history with granular, reproducible technical milestones.</li></ul>
-            </div>
-            
-
-            <div class="card card-amber">
-                <div class="card-accent-bar"></div>
-                <h3>Live Status & Readiness</h3>
-                <ul><li>Aryan (10.7.11.108): Nginx (:443), Backends A & B (:3001/:3002), Backup DNS (:53) [ACTIVE]</li><li>Krishna (10.7.9.214): Primary DNS (:53), Standby Edge (:443), Test Client [ACTIVE]</li><li>All services running live on hardware, tested, verified, and ready for immediate demonstration.</li><li>Team 1: Aryan Bhargava & Krishna Pramod Dubale.</li></ul>
+            <div class="cards-row">
+                
+                <div class="card card-cyan">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Deliverables Manifest</div>
+                    <ul class="card-bullets"><li>1. Architecture Doc: docs/PHASE2_ARCHITECTURE.md & .html</li><li>2. Final Report: docs/PHASE2_FINAL_REPORT.md & .html</li><li>3. Presentation Decks: Phase2_Final_Presentation_Team1.pptx & .pdf</li><li>4. Configuration Bundle: config/phase2/ (6 production configs)</li><li>5. Source & Scripts: scripts/phase2/ (20 automation scripts)</li></ul>
+                </div>
+                
+                <div class="card card-green">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Evidence & GitHub Repository</div>
+                    <ul class="card-bullets"><li>6. Evidence Folder: evidence/phase2/ (10 PNG screenshots, 1.6MB PCAP, raw logs)</li><li>7. Submission Archive: ~/Desktop/Phase2_Submission_Team1.zip (1.6 MB bundle)</li><li>8. GitHub Repository: https://github.com/sanath-2512/Computer_Network</li><li>Full commit history with reproducible verification logs.</li></ul>
+                </div>
+                
+                <div class="card card-amber">
+                    <div class="card-bar"></div>
+                    <div class="card-title">Live Status & Readiness</div>
+                    <ul class="card-bullets"><li>Aryan (10.7.11.108): Nginx (:443), Backends A & B (:3001/:3002), Backup DNS (:53) [ACTIVE]</li><li>Krishna (10.7.9.214): Primary DNS (:53), Standby Edge (:443), Test Client [ACTIVE]</li><li>All services running live on hardware, tested, verified, and ready for immediate demonstration.</li><li>Team 1: Aryan Bhargava & Krishna Pramod Dubale.</li></ul>
+                </div>
+                
             </div>
             
             </div>
             <div class="slide-footer">
-                <span>Team 1 — Phase 2 Complete. Prepared for Full Marks (50/50) Evaluation.</span>
-                <span class="slide-counter">18 / 18</span>
+                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Computer Networks Lab Final Review &bull; Slide 18 / 18</span>
             </div>
         </section>
         
-</div>
-
-<div class="nav-controls">
-    <button class="nav-btn" onclick="prevSlide()">&#8592; Prev</button>
-    <div class="nav-info" id="nav-info">Slide 1 of 18</div>
-    <button class="nav-btn" onclick="nextSlide()">Next &#8594;</button>
-    <button class="nav-btn" onclick="toggleFullscreen()">Fullscreen</button>
-</div>
-
-<script>
-    let currentSlide = 1;
-    const totalSlides = 18;
-
-    function showSlide(n) {
-        document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById('slide-' + n);
-        if (target) {
-            target.classList.add('active');
-            currentSlide = n;
-            document.getElementById('nav-info').textContent = 'Slide ' + n + ' of ' + totalSlides;
-        }
-    }
-
-    function nextSlide() {
-        if (currentSlide < totalSlides) {
-            showSlide(currentSlide + 1);
-        }
-    }
-
-    function prevSlide() {
-        if (currentSlide > 1) {
-            showSlide(currentSlide - 1);
-        }
-    }
-
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-            nextSlide();
-        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-            prevSlide();
-        } else if (e.key === 'f' || e.key === 'F') {
-            toggleFullscreen();
-        } else if (e.key === 'Home') {
-            showSlide(1);
-        } else if (e.key === 'End') {
-            showSlide(totalSlides);
-        }
-    });
-</script>
-
 </body>
 </html>
