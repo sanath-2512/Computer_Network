@@ -53,7 +53,8 @@ SLIDES = [
         "subtitle": "Phase 2: Harden, Recover & Troubleshoot — Dual-Node Production Network Architecture",
         "authors": [
             {"name": "Aryan Bhargava", "role": "Node 1: Edge Proxy, Upstreams (A & B), Backup DNS, PF Firewall", "ip": "10.7.11.108"},
-            {"name": "Krishna Pramod Dubale", "role": "Node 2: Primary DNS Server, Standby Edge, Verification Client", "ip": "10.7.9.214"}
+            {"name": "Krishna Pramod Dubale", "role": "Node 2: Primary DNS Server, Standby Edge, Verification Client", "ip": "10.7.9.214"},
+            {"name": "Sanath Waraikar", "role": "Registered Team Member / Phase 1 Architecture & Edge/DNS", "ip": "Phase 1 Host"}
         ],
         "motto": "Core Mandate: \"The application stays simple — the network is the project.\"",
         "meta": "Campus Wi-Fi Subnet: 10.7.0.0/19 | Domain: app.team1.test | Team: Network Packers | November 2026"
@@ -63,7 +64,7 @@ SLIDES = [
         "type": "split",
         "category": "ARCHITECTURAL EVOLUTION",
         "title": "Phase 1 Baseline vs Phase 2 Hardened Production",
-        "subtitle": "Transitioning from a 3-Mac prototype to a resilient, zero-SPOF 2-Mac topology",
+        "subtitle": "Transitioning from a 3-Mac prototype to a resilient, hardened 2-Mac production topology",
         "bullets": [
             "<strong>Phase 1 (3 Macs):</strong> Single edge proxy (Sanath) and unencrypted backends directly reachable across campus LAN.",
             "<strong>Phase 2 Realignment:</strong> Consolidated 2-node architecture with hot-standby redundancy across DNS and Edge.",
@@ -212,10 +213,9 @@ SLIDES = [
         "subtitle": "Transparent upstream failover and automatic recovery without dropping requests",
         "bullets": [
             "<strong>Nginx HA Config:</strong> server 127.0.0.1:3001 max_fails=2 fail_timeout=10s; proxy_next_upstream error timeout http_502;",
-            "<strong>Fault Injection:</strong> Backend A killed (pkill -f 'backend.py --id A').",
-            "<strong>Zero Dropped Requests:</strong> 5 consecutive client requests served 100% by Backend B (X-Backend: B). Nginx catches TCP RST and fails over.",
-            "<strong>Automatic Recovery:</strong> Backend A restarted; after fail_timeout=10s expires, Nginx sends probe request and reintroduces A into round-robin.",
-            "<strong>Restored Balance:</strong> 6 subsequent requests alternate B -> A -> B -> A -> B -> A."
+            "<strong>Physical Scope:</strong> Backends A & B are co-located on Node 1; provides process-level failover against worker crashes.",
+            "<strong>Zero Dropped Requests:</strong> Backend A killed; 5 consecutive client requests served 100% by Backend B without drops.",
+            "<strong>Automatic Recovery:</strong> Backend A restarted; after 10s cooldown, Nginx automatically restores round-robin balance (B -> A -> B -> A)."
         ],
         "image": os.path.join(EVIDENCE_P2, "06-phase2-backend-ha-failover-a-down.png"),
         "caption": "Backend failover proof: 5 consecutive curls successfully served by Backend B when Backend A is down."
@@ -397,7 +397,7 @@ SLIDES = [
                     "Aryan (10.7.11.108): Nginx (:443), Backends A & B (:3001/:3002), Backup DNS (:53) [ACTIVE]",
                     "Krishna (10.7.9.214): Primary DNS (:53), Standby Edge (:443), Test Client [ACTIVE]",
                     "All services running live on hardware, tested, verified, and ready for immediate demonstration.",
-                    "Network Packers: Aryan Bhargava & Krishna Pramod Dubale."
+                    "Network Packers: Aryan Bhargava, Krishna Pramod Dubale, Sanath Waraikar."
                 ]
             }
         ]
@@ -464,31 +464,36 @@ def build_pptx():
             hero_box.line.width = Pt(1.5)
 
             # Authors Cards
-            card_w = Inches(5.5)
+            num_authors = len(data["authors"])
+            gap = Inches(0.25)
+            total_w = Inches(11.1)
+            card_w = (total_w - (num_authors - 1) * gap) / num_authors
             card_h = Inches(1.8)
             for idx, a in enumerate(data["authors"]):
-                ax = Inches(1.1 + idx * 5.8)
+                ax = Inches(1.1) + idx * (card_w + gap)
                 ay = Inches(2.3)
                 abox = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, ax, ay, card_w, card_h)
                 abox.fill.solid()
                 abox.fill.fore_color.rgb = RGBColor(20, 29, 47)
-                abox.line.color.rgb = C_CYAN if idx == 0 else C_AMBER
+                abox.line.color.rgb = C_CYAN if idx == 0 else (C_AMBER if idx == 1 else C_GREEN)
                 abox.line.width = Pt(1.5)
 
                 atf = abox.text_frame
                 atf.word_wrap = True
                 p1 = atf.paragraphs[0]
-                p1.text = f"{a['name']} ({a['ip']})"
+                p1.text = f"{a['name']}"
+                if a.get('ip'):
+                    p1.text += f" ({a['ip']})"
                 p1.font.name = FONT_HEAD
-                p1.font.size = Pt(15)
+                p1.font.size = Pt(13)
                 p1.font.bold = True
-                p1.font.color.rgb = C_CYAN if idx == 0 else C_AMBER
-                p1.space_after = Pt(6)
+                p1.font.color.rgb = C_CYAN if idx == 0 else (C_AMBER if idx == 1 else C_GREEN)
+                p1.space_after = Pt(4)
 
                 p2 = atf.add_paragraph()
                 p2.text = a["role"]
                 p2.font.name = FONT_BODY
-                p2.font.size = Pt(11)
+                p2.font.size = Pt(10)
                 p2.font.color.rgb = C_PRIMARY
 
             # Motto Box
@@ -894,6 +899,9 @@ body {{
 .author-card:nth-child(2) {{
     border-color: #fbbf24;
 }}
+.author-card:nth-child(3) {{
+    border-color: #34d399;
+}}
 .author-name {{
     font-size: 24px;
     font-weight: 800;
@@ -906,6 +914,9 @@ body {{
 }}
 .author-card:nth-child(2) .author-ip {{
     color: #fbbf24;
+}}
+.author-card:nth-child(3) .author-ip {{
+    color: #34d399;
 }}
 .author-role {{
     font-size: 16px;

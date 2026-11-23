@@ -1,12 +1,15 @@
 ================================================================================
 CN PROJECT PHASE 2 - COMPREHENSIVE EVIDENCE & DEMONSTRATION MANIFEST
 ================================================================================
-Team: Aryan Bhargava (10.7.11.108 - Edge/Backends/Backup DNS) & Krishna Dubale (10.7.9.214 - Primary DNS/Client/Standby Edge)
-Domain: team1.test (Subnet: 10.7.0.0/19, en0)
+Team: Network Packers (Team 1)
+  - Aryan Bhargava (10.7.11.108 - Node 1: Main Edge / Backends A & B / Backup DNS / PF Firewall)
+  - Krishna Pramod Dubale (10.7.9.214 - Node 2: Primary DNS / Standby Edge / Verification Client)
+  - Sanath Waraikar (Registered Team Member / Phase 1 Architecture & Edge/DNS)
+Domain: team1.test (Subnet: 10.7.0.0/19, physical interface en0)
 Date: November 2026
 
-Both visual screenshot images (.png) and raw terminal execution transcripts (.txt)
-are provided below for complete evidentiary proof.
+Both visual screenshot images (.png), live network packet captures (.pcapng),
+and raw execution transcripts (.txt) are cataloged below for evaluation proof.
 
 --------------------------------------------------------------------------------
 1. NETWORK TOPOLOGY & LAN DISCOVERY (TASK A)
@@ -18,7 +21,7 @@ are provided below for complete evidentiary proof.
 --------------------------------------------------------------------------------
 2. PROTOCOL PACKET CAPTURES (WIRESHARK / TSHARK)
 --------------------------------------------------------------------------------
-- Capture: dns-failover.pcapng                        Promiscuous packet capture (1.5 MB) on en0 showing primary DNS outage
+- Capture: dns-failover.pcapng                        Promiscuous packet capture (1.6 MB) on en0 showing primary DNS outage
                                                       and automated query redirection to backup DNS (10.7.11.108:53).
 - Capture: evidence/phase1-flow.pcapng                Phase 1 full protocol flow capture (DNS, TCP 3-way, TLS, HTTP).
 
@@ -56,25 +59,45 @@ are provided below for complete evidentiary proof.
 - Image:   07-phase2-backend-ha-recovery-rejoin.png   Terminal screenshot showing Backend A restart and round-robin rejoin.
 - Text:    backend-failover-a-down.txt & backend-recovery-roundrobin.txt Raw terminal outputs during outage and recovery.
 - Log:     ha-test-failover-recovery.txt              Timestamped passive health check failure/rejoin validation log.
+- Note:    Provides process-level redundancy across co-located Backends A and B on Aryan's Mac.
 
 --------------------------------------------------------------------------------
 8. EXTENSION A: BACKUP DNS RESOLVER FAILOVER
 --------------------------------------------------------------------------------
 - Image:   08-phase2-dns-failover-backup-resolver.png Terminal screenshot of primary DNS down and backup DNS answering.
 - Text:    ext_a_system_resolver_failover.txt         System stub resolver (dscacheutil) failover transcript.
+- Capture: dns-failover.pcapng                        1.6 MB packet capture proving dynamic resolver shift.
 
 --------------------------------------------------------------------------------
-9. EXTENSION E: STANDBY EDGE MIGRATION
+9. EXTENSION B: DYNAMIC TTL & CONTROLLED CUTOVER PROCEDURE
+--------------------------------------------------------------------------------
+- Image:   10-phase2-dns-cutover-and-restore.png      Terminal screenshot of 30-second TTL cutover and restoration.
+- Text:    ext_b_ttl_30s_cache_behavior.txt           Cached copy expiration countdown and flush behavior.
+- Text:    dns-cutover-30s-ttl.txt                    Raw record cutover and restore log.
+- Scripts: scripts/phase2/set-primary-dns-migration.sh & restore-primary-dns-records.sh (Krishna)
+           scripts/phase2/set-backup-dns-migration.sh & restore-backup-dns-records.sh (Aryan)
+- Procedure:
+    1. Krishna runs `set-primary-dns-migration.sh` & Aryan runs `set-backup-dns-migration.sh`.
+    2. Both resolvers update `app.team1.test` -> `10.7.9.214` with `local-ttl=30`.
+    3. Client queries show TTL decrementing (30s -> 25s -> 0s).
+    4. Immediate flush: `sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder`.
+    5. Clean restoration via `restore-primary-dns-records.sh` & `restore-backup-dns-records.sh`.
+
+--------------------------------------------------------------------------------
+10. EXTENSION E: STANDBY EDGE DISASTER RECOVERY & CROSS-NODE MIGRATION
 --------------------------------------------------------------------------------
 - Image:   09-phase2-standby-edge-migration.png       Terminal screenshot showing Standby Nginx (1.31.9) on 10.7.9.214
                                                       serving requests proxying across LAN to Aryan's backends.
 - Text:    standby_edge_curl.txt                      Raw curl output through Standby Edge.
 - Text:    migration_nc_3001.txt & migration_nc_3002.txt Direct connectivity through temporary migration firewall rule.
-
---------------------------------------------------------------------------------
-10. EXTENSION B: CONTROLLED TTL & RECORD CUTOVER
---------------------------------------------------------------------------------
-- Image:   10-phase2-dns-cutover-and-restore.png      Terminal screenshot of 30-second TTL cutover and restoration.
-- Text:    ext_b_ttl_30s_cache_behavior.txt           Cached copy expiration countdown and flush behavior.
-- Text:    dns-cutover-30s-ttl.txt                    Raw record cutover and restore log.
+- Scripts: scripts/phase2/set-migration-allow.sh (Aryan)
+           scripts/phase2/set-primary-dns-migration.sh (Krishna)
+           scripts/phase2/set-backup-dns-migration.sh (Aryan)
+- Procedure:
+    1. Aryan applies PF migration rule: `bash scripts/phase2/set-migration-allow.sh`
+    2. Krishna verifies direct connectivity: `nc -zv 10.7.11.108 3001` (Succeeds)
+    3. Krishna starts Standby Nginx: `sudo nginx -c $HOME/.cn-team1-phase2/nginx/standby.conf`
+    4. Both resolvers updated: Krishna runs `set-primary-dns-migration.sh`, Aryan runs `set-backup-dns-migration.sh`
+    5. Client verifies HTTPS: `curl -iv https://app.team1.test/api/status` (Served by Standby Edge)
+    6. Restoration: Krishna stops Standby Nginx, runs `restore-primary-dns-records.sh`; Aryan runs `restore-backup-dns-records.sh` and `restore-isolation.sh`.
 ================================================================================

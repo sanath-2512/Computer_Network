@@ -1,6 +1,9 @@
 # Computer Networks Course Project — Phase 2 Final Engineering Report
-**Team: Network Packers (Team 1)**: Aryan Bhargava (`2401010100`, Mac 2 – Edge/Backends/Backup DNS) & Krishna Pramod Dubale (Mac 1 – Primary DNS/Client/Standby Edge)  
-**Academic Term**: Fall 2026 | **Domain**: `team1.test` | **Deployment**: 2 macOS Laptops on Private Physical LAN (`10.7.0.0/19`)
+**Team: Network Packers (Team 1)**  
+- **Aryan Bhargava** (`2401010100`, Node 1 – Main Edge Nginx / Backends A & B / Backup DNS / PF Firewall)  
+- **Krishna Pramod Dubale** (Node 2 – Primary DNS / Standby Edge Nginx / Verification Client)  
+- **Sanath Waraikar** (Registered Team Member / Phase 1 Architecture & Edge/DNS)  
+**Academic Term**: Fall 2026 | **Domain**: `team1.test` | **Deployment**: 2 Physical macOS Laptops on Private Physical LAN (`10.7.0.0/19`, en0)
 
 ---
 
@@ -63,10 +66,11 @@ Every required extension was tested live over the physical LAN between Aryan and
   - Client access to `https://app.team1.test` (port 443) succeeded with HTTP 200.
 
 ### Extension D: High-Availability Upstream Failover
-- **Objective**: Prove zero-downtime application resilience when an upstream backend fails.
+- **Objective**: Demonstrate application-layer resilience and zero-drop request retries when an upstream worker fails.
+- **Physical Scope & HA Boundaries**: Both backends (A & B) are co-located on Aryan's physical Mac (`10.7.11.108`) bound to distinct loopback ports (`127.0.0.1:3001` and `3002`). This provides process-level redundancy and passive failover against application/worker crashes, but not physical hardware fault tolerance (which is addressed by Standby Edge DR in Extension E).
 - **Execution**: Backend A (PID 16823) was stopped while Krishna executed 5 consecutive requests to `https://app.team1.test/api/status`.
 - **Observed Behavior**:
-  - Requests 1 through 5 returned `HTTP/2 200 OK` with `X-Backend: B` (100% success rate, 0 dropped requests).
+  - Requests 1 through 5 returned `HTTP/2 200` with `X-Backend: B` (100% success rate, 0 dropped requests).
   - Nginx marked Backend A down for 10 seconds (`fail_timeout=10s`).
   - Backend A was restarted. After 11 seconds, repeated requests resumed round-robin alternation between A and B.
 
@@ -152,9 +156,22 @@ curl -s -i -H 'If-None-Match: "22926ba9d1982e7c"' https://app.team1.test/api/cac
 for i in {1..4}; do curl -s -i https://app.team1.test/api/status | grep "x-backend:"; done
 ~/.cn-team1-phase2/scripts/start-backend-A.sh
 
-# STEP 9: Demonstrate Phase 2 Resilience (PF Firewall Isolation)
-# From Krishna's Mac: nc -vz -w 2 10.7.11.108 3001 (TIMES OUT)
-# From Aryan's Mac: curl http://127.0.0.1:3001/api/status (SUCCEEDS)
+# STEP 9: Demonstrate Phase 2 DNS & Resilience Behavior (Extensions A, B, E)
+# A) Extension A (DNS Failover): Stop Primary dnsmasq on Krishna -> Query automatically answered by Backup DNS (10.7.11.108):
+#    From Krishna: dig @10.7.11.108 app.team1.test +short (Returns 10.7.11.108)
+#    Inspect capture: evidence/phase2/dns-failover.pcapng (Shows port 53 query redirect)
+# B) Extension B (TTL & Caching): Consecutive dig queries show 30s TTL countdown:
+#    From Krishna: dig @10.7.9.214 app.team1.test (Observe TTL decrementing 30 -> 25 -> 0)
+# C) Extension E (Standby Edge DNS Cutover):
+#    From Krishna: bash ~/.cn-team1-phase2/scripts/set-primary-dns-migration.sh
+#    From Aryan:   bash ~/.cn-team1-phase2/scripts/set-backup-dns-migration.sh
+#    Verify:       curl -iv https://app.team1.test/api/status (Served by Standby Edge)
+#    Restoration:  bash ~/.cn-team1-phase2/scripts/restore-primary-dns-records.sh
+#                  bash ~/.cn-team1-phase2/scripts/restore-backup-dns-records.sh
+
+# SEPARATE CHECK - Extension C: Kernel-Level Service Isolation (PF Firewall)
+# From Krishna's Mac: nc -vz -w 2 10.7.11.108 3001 (TIMES OUT - Dropped at kernel driver)
+# From Aryan's Mac:   curl -s http://127.0.0.1:3001/api/status (SUCCEEDS via loopback lo0)
 
 # STEP 10: Faculty-Injected Fault Diagnosis
 # Follow Layer Sequence: DNS (dig) -> TCP (nc/ping) -> TLS (openssl s_client) -> App (curl/logs)

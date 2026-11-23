@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-BASE="$HOME/.cn-team1-phase2"
+BASE="${CN_BASE:-$HOME/.cn-team1-phase2}"
 CA="$BASE/identity/ca.crt"
 HOST="app.team1.test"
 ARYAN_IP="10.7.11.108"
@@ -21,8 +21,10 @@ done
 
 echo "----------------------------------------"
 echo "Distribution: Backend A: $count_A | Backend B: $count_B"
-if [ $count_A -gt 0 ] && [ $count_B -gt 0 ]; then
+if [ "$count_A" -gt 0 ] && [ "$count_B" -gt 0 ]; then
     echo "RESULT: PASS (Both backends actively receiving traffic)"
+    exit 0
 else
-    echo "RESULT: FAIL (Traffic not distributed to both backends)"
+    echo "RESULT: FAIL (Traffic not distributed to both backends)" >&2
+    exit 1
 fi

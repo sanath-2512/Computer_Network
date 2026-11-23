@@ -1,7 +1,10 @@
 # Computer Networks Course Project — Private Network Service Platform
 **A Two-Phase, Team-Based Local Networking Project on Physical macOS Laptops**
 
-- **Team**: Aryan Bhargava (`2401010100`), Krishna Pramod Dubale, Sanath Waraikar
+- **Team**: **Network Packers (Team 1)**
+  - **Aryan Bhargava** (`2401010100`): Node 1 Operator (Main Edge Proxy, Backend Cluster A/B, Backup DNS, PF Firewall)
+  - **Krishna Pramod Dubale**: Node 2 Operator (Primary DNS Server, Standby Edge Proxy, Verification Client)
+  - **Sanath Waraikar**: Registered Team Member (Phase 1 Baseline Edge/DNS Architect)
 - **Domain**: `team1.test` | **Physical Network**: Wi-Fi LAN (`10.7.0.0/19`, en0) | **Gateway**: `10.7.0.1`
 - **Core Principle**: *The application stays simple — the network is the project.*
 
@@ -70,7 +73,8 @@ Every team prepares to show all 11 steps sequentially during the faculty evaluat
 | **6** | **Show Wireshark evidence of DNS, TCP, TLS** | Open capture. Point to DNS query/response, TCP 3-way handshake, TLS handshake. | Open `evidence/phase2/dns-failover.pcapng` and `evidence/phase1-flow.pcapng` in Wireshark |
 | **7** | **Show HTTP headers and caching behavior** | `curl -I` showing Cache-Control. Demonstrate 304 Not Modified or cache hit. | `curl -s -i https://app.team1.test/api/cached`<br>`curl -s -i -H 'If-None-Match: "22926ba9d1982e7c"' https://app.team1.test/api/cached` |
 | **8** | **Fail one backend & prove service continues**| Stop Backend A. Show requests still succeed through Backend B only. | `scripts/phase2/stop-backend-A.sh`<br>`for i in {1..4}; do curl -s -i https://app.team1.test/api/status \| grep "x-backend:"; done`<br>`scripts/phase2/start-backend-A.sh` |
-| **9** | **Demonstrate Phase 2 DNS & resilience behavior**| Show backup DNS failover, TTL/caching, or DNS-based cutover (Ext A/B/E). | Show Ext A DNS failover capture (`dns-failover.pcapng`), Ext B TTL cutover, or Ext C PF isolation |
+| **9** | **Demonstrate Phase 2 DNS & resilience behavior**| Show backup DNS failover, TTL/caching, or DNS-based cutover (Ext A/B/E). | **Ext A (DNS Failover):** Stop Primary dnsmasq -> verify fallback to Backup (10.7.11.108); inspect `evidence/phase2/dns-failover.pcapng`.<br>**Ext B (TTL/Caching):** `dig @10.7.9.214 app.team1.test` shows 30s TTL countdown; flush cache via `dscacheutil`.<br>**Ext E (DNS Cutover):** Run `set-primary-dns-migration.sh` & `set-backup-dns-migration.sh` -> verify Standby Edge. |
+| **—** | **Extension C: Service Isolation (Separate Check)** | Block raw LAN inbound TCP to ports 3001/3002 via kernel PF anchor while loopback reverse-proxying succeeds. | `nc -vz -w 2 10.7.11.108 3001` (times out from Krishna)<br>`curl -s http://127.0.0.1:3001/api/status` (succeeds locally on Aryan) |
 | **10**| **Diagnose faculty-injected fault** | Team diagnoses and fixes fault layer by layer: DNS -> TCP -> TLS -> App. | Follow Section 3 runbook in [`docs/PHASE2_FINAL_REPORT.md`](docs/PHASE2_FINAL_REPORT.md) |
 | **11**| **Individual viva questions** | Every team member answers individual conceptual questions. | Follow Section 6 viva guide in [`docs/PHASE2_FINAL_REPORT.md`](docs/PHASE2_FINAL_REPORT.md) |
 

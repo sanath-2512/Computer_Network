@@ -1,5 +1,8 @@
 # Computer Networks Course Project — Phase 2 Architecture Document
 **Team Network Packers (Team 1) — Private Network Service Platform: Hardened 2-Node Topology**  
+- **Aryan Bhargava** (`2401010100`, Node 1 – Main Edge Nginx / Backends A & B / Backup DNS / PF Firewall)  
+- **Krishna Pramod Dubale** (Node 2 – Primary DNS / Standby Edge Nginx / Verification Client)  
+- **Sanath Waraikar** (Registered Team Member / Phase 1 Architecture & Edge/DNS)  
 **Date**: November 2026 | **Academic Term**: Fall 2026
 
 ---
