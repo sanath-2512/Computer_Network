@@ -1,5 +1,5 @@
 # Computer Networks Course Project — Phase 2 Final Engineering Report
-**Team 1**: Aryan Bhargava (`2401010100`, Mac 2 – Edge/Backends/Backup DNS) & Krishna Pramod Dubale (Mac 1 – Primary DNS/Client/Standby Edge)  
+**Team: Network Packers (Team 1)**: Aryan Bhargava (`2401010100`, Mac 2 – Edge/Backends/Backup DNS) & Krishna Pramod Dubale (Mac 1 – Primary DNS/Client/Standby Edge)  
 **Academic Term**: Fall 2026 | **Domain**: `team1.test` | **Deployment**: 2 macOS Laptops on Private Physical LAN (`10.7.0.0/19`)
 
 ---

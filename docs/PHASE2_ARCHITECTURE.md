@@ -1,5 +1,5 @@
 # Computer Networks Course Project — Phase 2 Architecture Document
-**Team 1 — Private Network Service Platform: Hardened 2-Node Topology**  
+**Team Network Packers (Team 1) — Private Network Service Platform: Hardened 2-Node Topology**  
 **Date**: November 2026 | **Academic Term**: Fall 2026
 
 ---

@@ -5,7 +5,7 @@ Build Phase 2 Final Presentation Slide Decks:
 2. Interactive & Printable HTML Presentation (.html) with side-by-side evidence
 3. 16:9 Landscape PDF Export via headless Chrome (.pdf)
 
-Team 1: Aryan Bhargava & Krishna Pramod Dubale
+Team: Network Packers (Aryan Bhargava & Krishna Pramod Dubale)
 Course: Computer Networks Project Phase 2 (Harden, Recover & Troubleshoot)
 """
 
@@ -56,7 +56,7 @@ SLIDES = [
             {"name": "Krishna Pramod Dubale", "role": "Node 2: Primary DNS Server, Standby Edge, Verification Client", "ip": "10.7.9.214"}
         ],
         "motto": "Core Mandate: \"The application stays simple — the network is the project.\"",
-        "meta": "Campus Wi-Fi Subnet: 10.7.0.0/19 | Domain: app.team1.test | November 2026 Evaluation"
+        "meta": "Campus Wi-Fi Subnet: 10.7.0.0/19 | Domain: app.team1.test | Team: Network Packers | November 2026"
     },
     {
         "num": 2,
@@ -397,7 +397,7 @@ SLIDES = [
                     "Aryan (10.7.11.108): Nginx (:443), Backends A & B (:3001/:3002), Backup DNS (:53) [ACTIVE]",
                     "Krishna (10.7.9.214): Primary DNS (:53), Standby Edge (:443), Test Client [ACTIVE]",
                     "All services running live on hardware, tested, verified, and ready for immediate demonstration.",
-                    "Team 1: Aryan Bhargava & Krishna Pramod Dubale."
+                    "Network Packers: Aryan Bhargava & Krishna Pramod Dubale."
                 ]
             }
         ]
@@ -429,7 +429,7 @@ def build_pptx():
         cat_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.42), Inches(11.0), Inches(0.3))
         tf_cat = cat_box.text_frame
         p_cat = tf_cat.paragraphs[0]
-        p_cat.text = f"TEAM 1 | {data['category']} | SLIDE {data['num']} OF {len(SLIDES)}"
+        p_cat.text = f"NETWORK PACKERS | {data['category']} | SLIDE {data['num']} OF {len(SLIDES)}"
         p_cat.font.name = FONT_HEAD
         p_cat.font.size = Pt(10)
         p_cat.font.bold = True
@@ -600,7 +600,7 @@ def build_pptx():
         foot_box = slide.shapes.add_textbox(Inches(0.8), Inches(6.85), Inches(11.733), Inches(0.3))
         ftf = foot_box.text_frame
         p_ft = ftf.paragraphs[0]
-        p_ft.text = f"Team 1 | Aryan Bhargava & Krishna Pramod Dubale | Slide {data['num']} of {len(SLIDES)}"
+        p_ft.text = f"Network Packers | Aryan Bhargava & Krishna Pramod Dubale | Slide {data['num']} of {len(SLIDES)}"
         p_ft.font.name = FONT_BODY
         p_ft.font.size = Pt(9)
         p_ft.font.color.rgb = C_MUTED
@@ -695,7 +695,7 @@ def build_html():
         <section class="slide" id="slide-{data['num']}">
             <div class="slide-header">
                 <div class="badge-row">
-                    <span class="badge">TEAM 1</span>
+                    <span class="badge">NETWORK PACKERS</span>
                     <span class="badge-cat">{data['category']}</span>
                     <span class="badge-num">SLIDE {data['num']} OF {len(SLIDES)}</span>
                 </div>
@@ -706,7 +706,7 @@ def build_html():
                 {body_html}
             </div>
             <div class="slide-footer">
-                <span>Team 1 &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
+                <span>Network Packers &bull; Aryan Bhargava & Krishna Pramod Dubale</span>
                 <span>Computer Networks Lab Final Review &bull; Slide {data['num']} / {len(SLIDES)}</span>
             </div>
         </section>
@@ -718,7 +718,7 @@ def build_html():
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Team 1 - Private Network Service Platform (Phase 2)</title>
+<title>Network Packers - Private Network Service Platform (Phase 2)</title>
 <style>
 @page {{
     size: 1920px 1080px;
@@ -1047,10 +1047,11 @@ def export_pdf():
 
 def sync_copies():
     print("Syncing copies to Desktop and Downloads...")
-    subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pptx")], check=True)
-    subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DESKTOP_DIR, "Phase2_Final_Presentation_Team1.pdf")], check=True)
-    subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DOWNLOADS_DIR, "Phase2_Final_Presentation_Team1.pdf")], check=True)
-    subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DOWNLOADS_DIR, "Phase2_Final_Presentation_Team1.pptx")], check=True)
+    for stem in ["Phase2_Final_Presentation_Team1", "Phase2_Final_Presentation_Network_Packers"]:
+        subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DESKTOP_DIR, f"{stem}.pptx")], check=True)
+        subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DESKTOP_DIR, f"{stem}.pdf")], check=True)
+        subprocess.run(["cp", "-f", PDF_PATH, os.path.join(DOWNLOADS_DIR, f"{stem}.pdf")], check=True)
+        subprocess.run(["cp", "-f", PPTX_PATH, os.path.join(DOWNLOADS_DIR, f"{stem}.pptx")], check=True)
     print("All copies synced.")
 
 
