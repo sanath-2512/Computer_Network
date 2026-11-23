@@ -1,163 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Phase 2 Final Engineering Report</title>
+<meta charset="UTF-8">
+<title>Phase 2 Final Engineering Report - Network Packers</title>
 <style>
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #1e293b; background: #fff; }
-h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
-h2 { color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-top: 32px; }
-h3 { color: #334155; margin-top: 24px; }
-code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
-pre { background: #0f172a; color: #f8fafc; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.88em; }
-pre code { background: none; color: inherit; padding: 0; }
-table { border-collapse: collapse; width: 100%; margin: 20px 0; }
-th, td { border: 1px solid #cbd5e1; padding: 10px 14px; text-align: left; }
-th { background: #f8fafc; color: #0f172a; font-weight: 600; }
-tr:nth-child(even) { background: #f8fafc; }
-blockquote { border-left: 4px solid #3b82f6; margin: 16px 0; padding: 8px 16px; background: #eff6ff; color: #1e40af; }
-hr { border: 0; border-top: 1px solid #e2e8f0; margin: 32px 0; }
-ul, ol { padding-left: 24px; }
-li { margin: 6px 0; }
+
+@page {
+    size: A4;
+    margin: 20mm 18mm 20mm 18mm;
+    @bottom-right {
+        content: counter(page);
+    }
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #ffffff;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+h1 {
+    font-size: 22pt;
+    color: #0f172a;
+    border-bottom: 2px solid #0284c7;
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+h2 {
+    font-size: 15pt;
+    color: #0369a1;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 6px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    page-break-after: avoid;
+}
+h3 {
+    font-size: 12pt;
+    color: #0f172a;
+    margin-top: 18px;
+    margin-bottom: 8px;
+    page-break-after: avoid;
+}
+p {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+hr {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 9.5pt;
+    page-break-inside: avoid;
+}
+th, td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+}
+tr:nth-child(even) td {
+    background-color: #f8fafc;
+}
+code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 9pt;
+    background-color: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #0369a1;
+    border: 1px solid #e2e8f0;
+}
+pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    page-break-inside: avoid;
+    margin: 12px 0;
+}
+pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+}
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-left: 22px;
+}
+li {
+    margin-bottom: 4px;
+}
+blockquote {
+    border-left: 4px solid #0284c7;
+    margin: 12px 0;
+    padding: 8px 14px;
+    background-color: #f0f9ff;
+    color: #0369a1;
+    font-style: italic;
+}
+.header-badge {
+    display: inline-block;
+    background: #0284c7;
+    color: #ffffff;
+    font-size: 9pt;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
 </style>
 </head>
 <body>
-<h1>Computer Networks Course Project — Phase 2 Final Engineering Report</h1>
-<p><strong>Team 1</strong>: Aryan Bhargava (<code>2401010100</code>, Mac 2 – Edge/Backends/Backup DNS) & Krishna Pramod Dubale (Mac 1 – Primary DNS/Client/Standby Edge)  </p>
-<p><strong>Academic Term</strong>: Fall 2026 | <strong>Domain</strong>: <code>team1.test</code> | <strong>Deployment</strong>: 2 macOS Laptops on Private Physical LAN (<code>10.7.0.0/19</code>)</p>
-<hr>
-<h2>1. What Changed from Phase 1 to Phase 2</h2>
+<h1 id="computer-networks-course-project-phase-2-final-engineering-report">Computer Networks Course Project — Phase 2 Final Engineering Report</h1>
+<p><strong>Team: Network Packers (Team 1)</strong><br />
+- <strong>Aryan Bhargava</strong> (<code>2401010100</code>, Node 1 – Main Edge Nginx / Backends A &amp; B / Backup DNS / PF Firewall)<br />
+- <strong>Krishna Pramod Dubale</strong> (Node 2 – Primary DNS / Standby Edge Nginx / Verification Client)<br />
+- <strong>Sanath Waraikar</strong> (Registered Team Member / Phase 1 Architecture &amp; Edge/DNS)<br />
+<strong>Academic Term</strong>: Fall 2026 | <strong>Domain</strong>: <code>team1.test</code> | <strong>Deployment</strong>: 2 Physical macOS Laptops on Private Physical LAN (<code>10.7.0.0/19</code>, en0)</p>
+<hr />
+<h2 id="1-what-changed-from-phase-1-to-phase-2">1. What Changed from Phase 1 to Phase 2</h2>
 <p>In Phase 1, the team established a baseline 3-laptop private service platform. While functional, it exhibited significant vulnerabilities: a single DNS server, exposed backend sockets on the LAN, static routing without health isolation, and no standby ingress.</p>
 <p>For Phase 2, the system was hardened, recovered, and thoroughly tested across a 2-laptop topology:</p>
-<p>1. <strong>Topology Re-engineering (3 Macs -> 2 Macs)</strong>:</p>
-<p>   - Sanath's Mac was decommissioned from the active deployment.</p>
-<p>   - All backend services (Backend A and Backend B) were co-located on Aryan's physical Mac, running as independent processes on ports 3001 and 3002.</p>
-<p>   - Krishna assumed the Primary DNS resolver and client test role.</p>
-<p>   - Aryan added a dedicated Backup DNS resolver on port 53.</p>
-<p>2. <strong>DNS Redundancy & TTL Reduction (Extensions A & B)</strong>:</p>
-<p>   - DNS TTL was lowered from 60s to 30s across all authoritative A-records to enable fast failover and cutover.</p>
-<p>   - Dual-resolver redundancy was introduced: Primary on Krishna (<code>10.7.9.214:53</code>) and Backup on Aryan (<code>10.7.11.108:53</code>).</p>
-<p>3. <strong>Kernel-Level Service Isolation (Extension C)</strong>:</p>
-<p>   - In Phase 1, backends listened on <code>0.0.0.0</code> with no firewall, allowing any device on the Wi-Fi LAN to bypass the Nginx edge and access the backends directly.</p>
-<p>   - In Phase 2, a macOS Packet Filter (PF) anchor (<code>com.apple/team1_isolation</code>) was applied to interface <code>en0</code>, dropping all inbound LAN TCP packets to ports 3001 and 3002 while allowing Nginx to proxy over loopback (<code>lo0</code>).</p>
-<p>4. <strong>Upstream Passive High Availability (Extension D)</strong>:</p>
-<p>   - Nginx upstream configuration was configured with <code>max_fails=1 fail_timeout=10s</code> and <code>proxy_next_upstream error timeout http_502 http_503</code>.</p>
-<p>   - When a backend service fails, Nginx transparently re-routes the request to the healthy backend within 2 seconds without dropping client connections.</p>
-<p>5. <strong>Standby Edge Migration (Extension E)</strong>:</p>
-<p>   - Krishna's Mac was equipped with a dormant Standby Nginx edge.</p>
-<p>   - A temporary PF firewall migration exception was engineered to permit Krishna's standby edge to access Aryan's backend ports 3001 and 3002 during failover, followed by clean restoration.</p>
-<hr>
-<h2>2. Resilience Tests and Live Verification Results</h2>
+<ol>
+<li><strong>Topology Re-engineering (3 Macs -&gt; 2 Macs)</strong>:</li>
+<li>Sanath's Mac was decommissioned from the active deployment.</li>
+<li>All backend services (Backend A and Backend B) were co-located on Aryan's physical Mac, running as independent processes on ports 3001 and 3002.</li>
+<li>Krishna assumed the Primary DNS resolver and client test role.</li>
+<li>
+<p>Aryan added a dedicated Backup DNS resolver on port 53.</p>
+</li>
+<li>
+<p><strong>DNS Redundancy &amp; TTL Reduction (Extensions A &amp; B)</strong>:</p>
+</li>
+<li>DNS TTL was lowered from 60s to 30s across all authoritative A-records to enable fast failover and cutover.</li>
+<li>
+<p>Dual-resolver redundancy was introduced: Primary on Krishna (<code>10.7.9.214:53</code>) and Backup on Aryan (<code>10.7.11.108:53</code>).</p>
+</li>
+<li>
+<p><strong>Kernel-Level Service Isolation (Extension C)</strong>:</p>
+</li>
+<li>In Phase 1, backends listened on <code>0.0.0.0</code> with no firewall, allowing any device on the Wi-Fi LAN to bypass the Nginx edge and access the backends directly.</li>
+<li>
+<p>In Phase 2, a macOS Packet Filter (PF) anchor (<code>com.apple/team1_isolation</code>) was applied to interface <code>en0</code>, dropping all inbound LAN TCP packets to ports 3001 and 3002 while allowing Nginx to proxy over loopback (<code>lo0</code>).</p>
+</li>
+<li>
+<p><strong>Upstream Passive High Availability (Extension D)</strong>:</p>
+</li>
+<li>Nginx upstream configuration was configured with <code>max_fails=1 fail_timeout=10s</code> and <code>proxy_next_upstream error timeout http_502 http_503</code>.</li>
+<li>
+<p>When a backend service fails, Nginx transparently re-routes the request to the healthy backend within 2 seconds without dropping client connections.</p>
+</li>
+<li>
+<p><strong>Standby Edge Migration (Extension E)</strong>:</p>
+</li>
+<li>Krishna's Mac was equipped with a dormant Standby Nginx edge.</li>
+<li>A temporary PF firewall migration exception was engineered to permit Krishna's standby edge to access Aryan's backend ports 3001 and 3002 during failover, followed by clean restoration.</li>
+</ol>
+<hr />
+<h2 id="2-resilience-tests-and-live-verification-results">2. Resilience Tests and Live Verification Results</h2>
 <p>Every required extension was tested live over the physical LAN between Aryan and Krishna:</p>
-<h3>Extension A: DNS Failover Demonstration</h3>
+<h3 id="extension-a-dns-failover-demonstration">Extension A: DNS Failover Demonstration</h3>
+<ul>
 <li><strong>Objective</strong>: Prove client name resolution survives a primary DNS server crash.</li>
 <li><strong>Execution</strong>: Krishna stopped the primary <code>dnsmasq</code> resolver while running a promiscuous packet capture (<code>tshark -i en0 -w dns-failover.pcapng</code>).</li>
 <li><strong>Observed Behavior</strong>:</li>
-<p>  - <code>dig @10.7.11.108 app.team1.test +short</code> immediately returned <code>10.7.11.108</code> from Aryan's Backup DNS.</p>
-<p>  - Client <code>curl https://app.team1.test/api/status</code> continued operating seamlessly without interruption.</p>
-<li><strong>Capture Evidence</strong>: [<code>dns-failover.pcapng</code>](../evidence/phase2/dns-failover.pcapng) (1.6 MB) captures the automated client failover sequence to <code>10.7.11.108:53</code>.</li>
-<h3>Extension B: DNS TTL & Controlled Record Change</h3>
+<li><code>dig @10.7.11.108 app.team1.test +short</code> immediately returned <code>10.7.11.108</code> from Aryan's Backup DNS.</li>
+<li>Client <code>curl https://app.team1.test/api/status</code> continued operating seamlessly without interruption.</li>
+<li><strong>Capture Evidence</strong>: <a href="../evidence/phase2/dns-failover.pcapng"><code>dns-failover.pcapng</code></a> (1.6 MB) captures the automated client failover sequence to <code>10.7.11.108:53</code>.</li>
+</ul>
+<h3 id="extension-b-dns-ttl-controlled-record-change">Extension B: DNS TTL &amp; Controlled Record Change</h3>
+<ul>
 <li><strong>Objective</strong>: Demonstrate DNS caching behavior and rapid cutover under low TTL (30s).</li>
 <li><strong>Execution</strong>: Both resolvers configured with <code>local-ttl=30</code>. A-record for <code>app.team1.test</code> changed to <code>10.7.9.214</code> and subsequently restored to <code>10.7.11.108</code>.</li>
 <li><strong>Observed Behavior</strong>: Cached responses persisted until TTL elapsed. Flushing local DNS cache (<code>dscacheutil -flushcache</code>) triggered instantaneous re-query and record update.</li>
-<h3>Extension C: Service Isolation via Packet Filter (PF)</h3>
+</ul>
+<h3 id="extension-c-service-isolation-via-packet-filter-pf">Extension C: Service Isolation via Packet Filter (PF)</h3>
+<ul>
 <li><strong>Objective</strong>: Prevent clients on the LAN from bypassing the edge and querying backend services directly.</li>
-<li><strong>Execution</strong>: Injected PF anchor rule:</li>
-<p>  <pre><code>  block drop in quick on en0 proto tcp from any to 10.7.11.108 port { 3001, 3002 }</p>
-<p>  </code></pre></p>
+<li><strong>Execution</strong>: Injected PF anchor rule:
+  <code>pf
+  block drop in quick on en0 proto tcp from any to 10.7.11.108 port { 3001, 3002 }</code></li>
 <li><strong>Observed Behavior</strong>:</li>
-<p>  - Krishna ran <code>nc -vz -G 2 10.7.11.108 3001</code> and <code>3002</code> -> <code>Operation timed out</code>.</p>
-<p>  - Local Nginx proxying via <code>127.0.0.1:3001</code> and <code>3002</code> on <code>lo0</code> functioned without degradation.</p>
-<p>  - Client access to <code>https://app.team1.test</code> (port 443) succeeded with HTTP 200.</p>
-<h3>Extension D: High-Availability Upstream Failover</h3>
-<li><strong>Objective</strong>: Prove zero-downtime application resilience when an upstream backend fails.</li>
+<li>Krishna ran <code>nc -vz -G 2 10.7.11.108 3001</code> and <code>3002</code> -&gt; <code>Operation timed out</code>.</li>
+<li>Local Nginx proxying via <code>127.0.0.1:3001</code> and <code>3002</code> on <code>lo0</code> functioned without degradation.</li>
+<li>Client access to <code>https://app.team1.test</code> (port 443) succeeded with HTTP 200.</li>
+</ul>
+<h3 id="extension-d-high-availability-upstream-failover">Extension D: High-Availability Upstream Failover</h3>
+<ul>
+<li><strong>Objective</strong>: Demonstrate application-layer resilience and zero-drop request retries when an upstream worker fails.</li>
+<li><strong>Physical Scope &amp; HA Boundaries</strong>: Both backends (A &amp; B) are co-located on Aryan's physical Mac (<code>10.7.11.108</code>) bound to distinct loopback ports (<code>127.0.0.1:3001</code> and <code>3002</code>). This provides process-level redundancy and passive failover against application/worker crashes, but not physical hardware fault tolerance (which is addressed by Standby Edge DR in Extension E).</li>
 <li><strong>Execution</strong>: Backend A (PID 16823) was stopped while Krishna executed 5 consecutive requests to <code>https://app.team1.test/api/status</code>.</li>
 <li><strong>Observed Behavior</strong>:</li>
-<p>  - Requests 1 through 5 returned <code>HTTP/2 200 OK</code> with <code>X-Backend: B</code> (100% success rate, 0 dropped requests).</p>
-<p>  - Nginx marked Backend A down for 10 seconds (<code>fail_timeout=10s</code>).</p>
-<p>  - Backend A was restarted. After 11 seconds, repeated requests resumed round-robin alternation between A and B.</p>
-<h3>Extension E: Controlled Standby Edge Migration</h3>
+<li>Requests 1 through 5 returned <code>HTTP/2 200</code> with <code>X-Backend: B</code> (100% success rate, 0 dropped requests).</li>
+<li>Nginx marked Backend A down for 10 seconds (<code>fail_timeout=10s</code>).</li>
+<li>Backend A was restarted. After 11 seconds, repeated requests resumed round-robin alternation between A and B.</li>
+</ul>
+<h3 id="extension-e-controlled-standby-edge-migration">Extension E: Controlled Standby Edge Migration</h3>
+<ul>
 <li><strong>Objective</strong>: Migrate ingress traffic to a standby reverse proxy without backend downtime.</li>
 <li><strong>Execution</strong>:</li>
-<p>  1. Aryan applied temporary PF exception: <code>pass in quick on en0 proto tcp from 10.7.9.214 to 10.7.11.108 port { 3001, 3002 }</code>.</p>
-<p>  2. Krishna started Standby Nginx on port 443 with identical certificates and upstreams.</p>
-<p>  3. DNS record updated to point <code>app.team1.test</code> -> <code>10.7.9.214</code>.</p>
-<p>  4. Client request verified against <code>10.7.9.214:443</code>.</p>
+<li>Aryan applied temporary PF exception: <code>pass in quick on en0 proto tcp from 10.7.9.214 to 10.7.11.108 port { 3001, 3002 }</code>.</li>
+<li>Krishna started Standby Nginx on port 443 with identical certificates and upstreams.</li>
+<li>DNS record updated to point <code>app.team1.test</code> -&gt; <code>10.7.9.214</code>.</li>
+<li>Client request verified against <code>10.7.9.214:443</code>.</li>
 <li><strong>Observed Behavior</strong>: Krishna's Standby Nginx successfully proxied requests across the LAN to Aryan's backends, returning <code>Server: nginx/1.31.9</code> and <code>X-Backend: A/B</code>.</li>
 <li><strong>Restoration</strong>: Standby Nginx stopped, DNS records restored to <code>10.7.11.108</code>, and Aryan restored normal PF isolation.</li>
-<hr>
-<h2>3. Extension F: Troubleshooting Challenge Runbook</h2>
-<p>The project enforces a strict hierarchical troubleshooting methodology:</p>
-<p>$$\text{Layer 7 (DNS)} \longrightarrow \text{Layer 4 (TCP)} \longrightarrow \text{Layer 5/6 (TLS)} \longrightarrow \text{Layer 7 (Application)}$$</p>
+</ul>
+<hr />
+<h2 id="3-extension-f-troubleshooting-challenge-runbook">3. Extension F: Troubleshooting Challenge Runbook</h2>
+<p>The project enforces a strict hierarchical troubleshooting methodology:
+$$\text{Layer 7 (DNS)} \longrightarrow \text{Layer 4 (TCP)} \longrightarrow \text{Layer 5/6 (TLS)} \longrightarrow \text{Layer 7 (Application)}$$</p>
 <table>
-<tr><th>#</th><th>Injected Fault</th><th>Affected Layer</th><th>Diagnostic Command</th><th>Expected Symptom</th><th>Systematic Remediation</th></tr>
-<tr><td><strong>1</strong></td><td>Wrong DNS Server on Client</td><td>DNS (L7)</td><td><code>dig @8.8.8.8 app.team1.test</code></td><td><code>status: NXDOMAIN</code></td><td>Set Wi-Fi DNS to team primary (<code>10.7.9.214</code>) and backup (<code>10.7.11.108</code>).</td></tr>
-<tr><td><strong>2</strong></td><td>Stale / Wrong A-Record</td><td>DNS (L7)</td><td><code>dig app.team1.test +short</code></td><td>Resolves to wrong IP</td><td>Correct <code>host-record</code> in <code>dnsmasq.conf</code> and reload resolver.</td></tr>
-<tr><td><strong>3</strong></td><td>Primary DNS Resolver Down</td><td>DNS (L7)</td><td><code>dig @10.7.9.214 app.team1.test</code></td><td>Connection timed out</td><td>Fall back to Backup DNS (<code>10.7.11.108</code>) and restart primary dnsmasq.</td></tr>
-<tr><td><strong>4</strong></td><td>Wrong Destination Port</td><td>TCP (L4)</td><td><code>curl https://app.team1.test:8444/</code></td><td><code>Connection refused</code></td><td>Identify active listener (<code>lsof -iTCP -sTCP:LISTEN</code>) and target port 443.</td></tr>
-<tr><td><strong>5</strong></td><td>Main Edge Nginx Stopped</td><td>TCP (L4)</td><td><code>nc -zv 10.7.11.108 443</code></td><td><code>Connection refused</code></td><td>Start Nginx (<code>start-main-edge.sh</code>); inspect <code>nginx-error.log</code>.</td></tr>
-<tr><td><strong>6</strong></td><td>Untrusted Root CA Certificate</td><td>TLS (L5/L6)</td><td><code>curl https://app.team1.test/api/status</code></td><td><code>SSL certificate problem</code></td><td>Install <code>ca.crt</code> into macOS System Keychain with <code>trustRoot</code> flag.</td></tr>
-<tr><td><strong>7</strong></td><td>Hostname / SAN Mismatch</td><td>TLS (L5/L6)</td><td><code>openssl s_client -connect 10.7.11.108:443</code></td><td>Certificate name mismatch</td><td>Re-issue certificate with <code>subjectAltName = DNS:app.team1.test, DNS:api.team1.test</code>.</td></tr>
-<tr><td><strong>8</strong></td><td>Single Backend Failure</td><td>App (L7)</td><td><code>curl -s -i .../api/status \</td><td>grep X-Backend</code></td><td>Traffic sticks to healthy backend</td><td>Check backend process (<code>ps aux \</td><td>grep backend.py</code>); restart failed backend.</td></tr>
-<tr><td><strong>9</strong></td><td>Both Backends Stopped</td><td>App (L7)</td><td><code>curl -i https://app.team1.test/api/status</code></td><td><code>HTTP/2 502 Bad Gateway</code></td><td>Restart Backend A (<code>port 3001</code>) and Backend B (<code>port 3002</code>).</td></tr>
-<tr><td><strong>10</strong></td><td>PF Blocking Upstream Loopback</td><td>Network (L3/L4)</td><td><code>curl http://127.0.0.1:3001/api/status</code></td><td>Connection dropped/refused</td><td>Ensure PF rule matches only physical interface (<code>on en0</code>) and never <code>lo0</code>.</td></tr>
+<thead>
+<tr>
+<th>#</th>
+<th style="text-align: left;">Injected Fault</th>
+<th style="text-align: left;">Affected Layer</th>
+<th style="text-align: left;">Diagnostic Command</th>
+<th style="text-align: left;">Expected Symptom</th>
+<th style="text-align: left;">Systematic Remediation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td style="text-align: left;">Wrong DNS Server on Client</td>
+<td style="text-align: left;">DNS (L7)</td>
+<td style="text-align: left;"><code>dig @8.8.8.8 app.team1.test</code></td>
+<td style="text-align: left;"><code>status: NXDOMAIN</code></td>
+<td style="text-align: left;">Set Wi-Fi DNS to team primary (<code>10.7.9.214</code>) and backup (<code>10.7.11.108</code>).</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td style="text-align: left;">Stale / Wrong A-Record</td>
+<td style="text-align: left;">DNS (L7)</td>
+<td style="text-align: left;"><code>dig app.team1.test +short</code></td>
+<td style="text-align: left;">Resolves to wrong IP</td>
+<td style="text-align: left;">Correct <code>host-record</code> in <code>dnsmasq.conf</code> and reload resolver.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td style="text-align: left;">Primary DNS Resolver Down</td>
+<td style="text-align: left;">DNS (L7)</td>
+<td style="text-align: left;"><code>dig @10.7.9.214 app.team1.test</code></td>
+<td style="text-align: left;">Connection timed out</td>
+<td style="text-align: left;">Fall back to Backup DNS (<code>10.7.11.108</code>) and restart primary dnsmasq.</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td style="text-align: left;">Wrong Destination Port</td>
+<td style="text-align: left;">TCP (L4)</td>
+<td style="text-align: left;"><code>curl https://app.team1.test:8444/</code></td>
+<td style="text-align: left;"><code>Connection refused</code></td>
+<td style="text-align: left;">Identify active listener (<code>lsof -iTCP -sTCP:LISTEN</code>) and target port 443.</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td style="text-align: left;">Main Edge Nginx Stopped</td>
+<td style="text-align: left;">TCP (L4)</td>
+<td style="text-align: left;"><code>nc -zv 10.7.11.108 443</code></td>
+<td style="text-align: left;"><code>Connection refused</code></td>
+<td style="text-align: left;">Start Nginx (<code>start-main-edge.sh</code>); inspect <code>nginx-error.log</code>.</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td style="text-align: left;">Untrusted Root CA Certificate</td>
+<td style="text-align: left;">TLS (L5/L6)</td>
+<td style="text-align: left;"><code>curl https://app.team1.test/api/status</code></td>
+<td style="text-align: left;"><code>SSL certificate problem</code></td>
+<td style="text-align: left;">Install <code>ca.crt</code> into macOS System Keychain with <code>trustRoot</code> flag.</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td style="text-align: left;">Hostname / SAN Mismatch</td>
+<td style="text-align: left;">TLS (L5/L6)</td>
+<td style="text-align: left;"><code>openssl s_client -connect 10.7.11.108:443</code></td>
+<td style="text-align: left;">Certificate name mismatch</td>
+<td style="text-align: left;">Re-issue certificate with <code>subjectAltName = DNS:app.team1.test, DNS:api.team1.test</code>.</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td style="text-align: left;">Single Backend Failure</td>
+<td style="text-align: left;">App (L7)</td>
+<td style="text-align: left;"><code>curl -s -i .../api/status \| grep X-Backend</code></td>
+<td style="text-align: left;">Traffic sticks to healthy backend</td>
+<td style="text-align: left;">Check backend process (<code>ps aux \| grep backend.py</code>); restart failed backend.</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td style="text-align: left;">Both Backends Stopped</td>
+<td style="text-align: left;">App (L7)</td>
+<td style="text-align: left;"><code>curl -i https://app.team1.test/api/status</code></td>
+<td style="text-align: left;"><code>HTTP/2 502 Bad Gateway</code></td>
+<td style="text-align: left;">Restart Backend A (<code>port 3001</code>) and Backend B (<code>port 3002</code>).</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td style="text-align: left;">PF Blocking Upstream Loopback</td>
+<td style="text-align: left;">Network (L3/L4)</td>
+<td style="text-align: left;"><code>curl http://127.0.0.1:3001/api/status</code></td>
+<td style="text-align: left;">Connection dropped/refused</td>
+<td style="text-align: left;">Ensure PF rule matches only physical interface (<code>on en0</code>) and never <code>lo0</code>.</td>
+</tr>
+</tbody>
 </table>
-<hr>
-<h2>4. Learning Summary (One Detailed Paragraph per Extension)</h2>
-<li><strong>Extension A (Backup DNS Resolver)</strong>: Implementing an active backup DNS resolver demonstrated the practical separation between network routing and name resolution. We learned how stub resolvers prioritize multiple DNS nameservers and how low failover latency depends on fast negative caching and responsive secondary resolvers. This directly mirrored enterprise Route 53 multi-AZ resolver architectures.</li>
-<li><strong>Extension B (DNS TTL and Controlled Cutover)</strong>: Working with a 30-second TTL provided hands-on understanding of the trade-off between resolver caching efficiency and operational agility. High TTLs reduce recursive query load but prolong propagation delay during outages; low TTLs allow rapid cutover during migrations at the cost of higher query frequency. We observed how operating system resolver caches (macOS <code>mDNSResponder</code>) enforce TTL expirations.</li>
-<li><strong>Extension C (Service Isolation via PF Firewall)</strong>: Developing kernel-level packet filter rules deepened our understanding of transport-layer boundaries and defense-in-depth security. By restricting ports 3001 and 3002 on <code>en0</code>, we proved that edge proxies must serve as the sole entry point, preventing perimeter bypass. Structuring rules inside dedicated anchors (<code>com.apple/team1_isolation</code>) taught us safe change control without risking host stability.</li>
-<li><strong>Extension D (High-Availability Upstream Failover)</strong>: Configuring passive health checks (<code>max_fails</code> and <code>fail_timeout</code>) along with <code>proxy_next_upstream</code> demonstrated layer 7 load-balancing resilience. We saw how reverse proxies mask infrastructure failures from clients, retrying failed requests idempotently on healthy backends. This highlighted the difference between passive client-driven detection and proactive synthetic health probing.</li>
-<li><strong>Extension E (Controlled Standby Edge Migration)</strong>: Engineering a standby edge proxy on Krishna's Mac simulated a disaster recovery cutover. We learned how host-based firewall exceptions must be dynamically relaxed to permit inter-node reverse proxying during migration, and how DNS cutovers shift client ingress without taking downstream services offline.</li>
-<li><strong>Extension F (Fault Isolation and Layer-by-Layer Diagnosis)</strong>: Simulating ten reproducible network failures solidified our understanding of the TCP/IP abstraction hierarchy. We developed disciplined diagnostic habits: verifying name resolution before blaming transport connectivity, inspecting TLS handshake alerts before investigating HTTP errors, and checking socket bindings before restarting services.</li>
-<hr>
-<h2>5. Live 11-Step Demonstration Script (For Review & Viva)</h2>
-<p>Follow this precise sequence during the viva examination:</p>
-<pre><code># STEP 1: Topology &amp; IP/Service Inventory
-<p>cat ~/.cn-team1-phase2/handoff-aryan.md</p>
-<h1>STEP 2: LAN Reachability (Aryan &lt;-&gt; Krishna)</h1>
-<p>ping -c 2 10.7.9.214</p>
-<h1>STEP 3: DNS Resolution (Primary &amp; Backup)</h1>
-<p>dig @10.7.9.214 app.team1.test +short</p>
-<p>dig @10.7.11.108 app.team1.test +short</p>
-<h1>STEP 4: HTTPS over Domain Name (Strict TLS, HTTP/2, Keychain Trust)</h1>
-<p>curl -v https://app.team1.test/api/status</p>
-<h1>STEP 5: Load Balancing Distribution (Round-Robin A/B)</h1>
-<p>for i in {1..6}; do curl -s -i https://app.team1.test/api/status | grep "x-backend:"; done</p>
-<h1>STEP 6: Wireshark / Packet Capture Protocol Evidence</h1>
-<h1>Open dns-failover.pcapng and phase1-flow.pcapng in Wireshark</h1>
-<h1>STEP 7: HTTP Caching &amp; Conditional 304 Not Modified</h1>
-<p>curl -s -i https://app.team1.test/api/cached | grep -E "(ETag|Cache-Control)"</p>
-<h1>Conditional request with ETag:</h1>
-<p>curl -s -i -H 'If-None-Match: "22926ba9d1982e7c"' https://app.team1.test/api/cached | grep "HTTP/"</p>
-<h1>STEP 8: Backend Failure (Stop A -&gt; 100% traffic to B)</h1>
-<p>~/.cn-team1-phase2/scripts/stop-backend-A.sh</p>
-<p>for i in {1..4}; do curl -s -i https://app.team1.test/api/status | grep "x-backend:"; done</p>
-<p>~/.cn-team1-phase2/scripts/start-backend-A.sh</p>
-<h1>STEP 9: Demonstrate Phase 2 Resilience (PF Firewall Isolation)</h1>
-<h1>From Krishna's Mac: nc -vz -w 2 10.7.11.108 3001 (TIMES OUT)</h1>
-<h1>From Aryan's Mac: curl http://127.0.0.1:3001/api/status (SUCCEEDS)</h1>
-<h1>STEP 10: Faculty-Injected Fault Diagnosis</h1>
-<h1>Follow Layer Sequence: DNS (dig) -&gt; TCP (nc/ping) -&gt; TLS (openssl s_client) -&gt; App (curl/logs)</h1>
-<h1>STEP 11: Individual Viva Questions (See Section 6)</h1>
-</code></pre>
-<hr>
-<h2>6. Viva Defense Guide & Key Conceptual Questions</h2>
-<h3>Questions for Aryan (Edge, TLS, Backends & Firewall)</h3>
-<p>1. <strong>Why does Nginx listen on 0.0.0.0 for ports 80/443, but proxies to 127.0.0.1 for backends?</strong>  </p>
-<p>   *Answer*: Nginx must accept incoming connections from any client on the physical LAN interface (<code>en0</code>), so it binds to <code>0.0.0.0</code>. Backends, however, only serve internal traffic and are accessed locally over loopback (<code>lo0</code>).</p>
-<p>2. <strong>How does macOS PF distinguish between a request from Krishna and a request from Nginx?</strong>  </p>
-<p>   *Answer*: PF filters by interface. The rule <code>block drop in quick on en0</code> applies strictly to packets arriving over the physical Wi-Fi NIC. Nginx connects to backends via <code>127.0.0.1</code>, which traverses the loopback interface (<code>lo0</code>), bypassing <code>en0</code> rules.</p>
-<p>3. <strong>What is the difference between TLS 1.2 and TLS 1.3 handshakes?</strong>  </p>
-<p>   *Answer*: TLS 1.2 requires two round-trips (2-RTT) to negotiate cipher suites, exchange key parameters, and authenticate certificates. TLS 1.3 optimizes this to 1-RTT by combining key share generation with the ClientHello, and encrypts all certificate messages.</p>
-<p>4. <strong>Why is <code>ca.key</code> never copied to other machines?</strong>  </p>
-<p>   *Answer*: The Root CA private key possesses the cryptographic authority to sign certificates for any domain. Exposing <code>ca.key</code> compromises the entire PKI trust chain. Only the public certificate (<code>ca.crt</code>) is needed for trust verification.</p>
-<h3>Questions for Krishna (DNS, Client Resolvers, Standby Edge & Captures)</h3>
-<p>1. <strong>Why does DNS use UDP for queries instead of TCP? When does it switch to TCP?</strong>  </p>
-<p>   *Answer*: UDP avoids the connection overhead of a 3-way handshake, maximizing lookup speed. DNS switches to TCP (port 53) when responses exceed 512 bytes (or EDNS0 buffer limits), or for zone transfers (AXFR).</p>
-<p>2. <strong>What does TTL 30 represent, and what happens when an IP changes before TTL expires?</strong>  </p>
-<p>   *Answer*: TTL (Time to Live) specifies how many seconds recursive and stub resolvers may cache the record. If an IP changes, clients continue sending traffic to the old IP until the cached TTL counter reaches zero.</p>
-<p>3. <strong>How does Nginx passive health checking work compared to active health checking?</strong>  </p>
-<p>   *Answer*: Passive health checking detects failure upon handling real client traffic. If a connection fails or times out, Nginx retries the live request via <code>proxy_next_upstream</code> and marks the backend down for <code>fail_timeout</code>. Active health checking sends synthetic probe requests periodically regardless of client traffic.</p>
+<hr />
+<h2 id="4-learning-summary-one-detailed-paragraph-per-extension">4. Learning Summary (One Detailed Paragraph per Extension)</h2>
+<ul>
+<li>
+<p><strong>Extension A (Backup DNS Resolver)</strong>: Implementing an active backup DNS resolver demonstrated the practical separation between network routing and name resolution. We learned how stub resolvers prioritize multiple DNS nameservers and how low failover latency depends on fast negative caching and responsive secondary resolvers. This directly mirrored enterprise Route 53 multi-AZ resolver architectures.</p>
+</li>
+<li>
+<p><strong>Extension B (DNS TTL and Controlled Cutover)</strong>: Working with a 30-second TTL provided hands-on understanding of the trade-off between resolver caching efficiency and operational agility. High TTLs reduce recursive query load but prolong propagation delay during outages; low TTLs allow rapid cutover during migrations at the cost of higher query frequency. We observed how operating system resolver caches (macOS <code>mDNSResponder</code>) enforce TTL expirations.</p>
+</li>
+<li>
+<p><strong>Extension C (Service Isolation via PF Firewall)</strong>: Developing kernel-level packet filter rules deepened our understanding of transport-layer boundaries and defense-in-depth security. By restricting ports 3001 and 3002 on <code>en0</code>, we proved that edge proxies must serve as the sole entry point, preventing perimeter bypass. Structuring rules inside dedicated anchors (<code>com.apple/team1_isolation</code>) taught us safe change control without risking host stability.</p>
+</li>
+<li>
+<p><strong>Extension D (High-Availability Upstream Failover)</strong>: Configuring passive health checks (<code>max_fails</code> and <code>fail_timeout</code>) along with <code>proxy_next_upstream</code> demonstrated layer 7 load-balancing resilience. We saw how reverse proxies mask infrastructure failures from clients, retrying failed requests idempotently on healthy backends. This highlighted the difference between passive client-driven detection and proactive synthetic health probing.</p>
+</li>
+<li>
+<p><strong>Extension E (Controlled Standby Edge Migration)</strong>: Engineering a standby edge proxy on Krishna's Mac simulated a disaster recovery cutover. We learned how host-based firewall exceptions must be dynamically relaxed to permit inter-node reverse proxying during migration, and how DNS cutovers shift client ingress without taking downstream services offline.</p>
+</li>
+<li>
+<p><strong>Extension F (Fault Isolation and Layer-by-Layer Diagnosis)</strong>: Simulating ten reproducible network failures solidified our understanding of the TCP/IP abstraction hierarchy. We developed disciplined diagnostic habits: verifying name resolution before blaming transport connectivity, inspecting TLS handshake alerts before investigating HTTP errors, and checking socket bindings before restarting services.</p>
+</li>
+</ul>
 </body>
 </html>
